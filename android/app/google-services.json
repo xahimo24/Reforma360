@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "609095987738",
+    "project_id": "myapplication-ecb84844",
+    "storage_bucket": "myapplication-ecb84844.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609095987738:android:debea2772b015fd0d097a3",
+        "android_client_info": {
+          "package_name": "com.example.reforma360"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAf6TbnnsgvfyCYcsBBG7p5WpO_iixNORE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

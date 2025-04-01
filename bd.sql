@@ -65,7 +65,7 @@ CREATE TABLE Projectes (
     id_usuari INT NOT NULL,
     id_professional INT NOT NULL,
     id_presupost INT NULL,
-    data_inici DATETIME NOT NULL,
+    data_inici DATETIME NOT NULL,x
     data_fi DATETIME NOT NULL,
     titol VARCHAR(255) NOT NULL,
     descripcio TEXT NOT NULL,
