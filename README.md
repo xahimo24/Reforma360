@@ -1,6 +1,4 @@
 # reforma360
-
-A new Flutter project.
 lib/
 ├── src/
 │   ├── core/                  # Elements compartits
