@@ -27,12 +27,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       try {
         final user = await ref.read(loginProvider(credentials).future);
 
-        // Aquí puedes guardar info del usuario si quieres
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Bienvenido, ${user.nom}')));
 
-        context.go(RouteNames.home); // Redirigir a la página principal
+        context.go(RouteNames.home);
       } catch (e) {
         ScaffoldMessenger.of(
           context,
@@ -44,40 +43,67 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Iniciar sessió")),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Introdueix el teu email'
-                            : null,
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Contrasenya'),
-                obscureText: true,
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Introdueix la contrasenya'
-                            : null,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(onPressed: _submit, child: const Text("Entrar")),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => context.go(RouteNames.register),
-                child: const Text("Encara no tens compte? Registra't"),
-              ),
-            ],
+        padding: const EdgeInsets.all(24.0),
+        child: Center(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Reforma360',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text('Inspírate y reforma'),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Correo electrónico',
+                  ),
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Introduce tu email'
+                              : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: 'Contraseña'),
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Introduce tu contraseña'
+                              : null,
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 60,
+                      vertical: 16,
+                    ),
+                  ),
+                  child: const Text('Iniciar sesión'),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => context.go(RouteNames.register),
+                  child: const Text('Regístrate'),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => context.go(RouteNames.recoverPassword),
+                  child: const Text('¿Olvidaste tu contraseña?'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
