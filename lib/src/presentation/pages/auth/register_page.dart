@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth/auth_provider.dart';
-import '../../../data/models/auth/user_model.dart';
 import '../../../data/models/auth/register_request.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
@@ -37,7 +36,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Registro completado')));
-        Navigator.pop(context); // o redirigir al login
+        Navigator.pop(context); // Volver al login
       }
     }
   }
@@ -81,6 +80,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ElevatedButton(
                 onPressed: _submit,
                 child: const Text("Registrar"),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("¿Ya tienes cuenta? Inicia sesión"),
               ),
             ],
           ),
