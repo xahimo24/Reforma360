@@ -52,6 +52,11 @@ class LoginPage extends StatelessWidget {
               onPressed: () => context.go(RouteNames.register),
               child: const Text('Regístrate'),
             ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => context.go(RouteNames.recoverPassword),
+              child: const Text('¿Olvidaste tu contraseña?'),
+            ),
           ],
         ),
       ),
