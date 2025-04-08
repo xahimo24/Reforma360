@@ -17,9 +17,5 @@ final GoRouter appRouter = GoRouter(
       name: 'register',
       builder: (context, state) => const RegisterPage(),
     ),
-    GoRoute(
-      path: RouteNames.recoverPassword,
-      builder: (context, state) => const RecoverPasswordPage(),
-    ),
   ],
 );
