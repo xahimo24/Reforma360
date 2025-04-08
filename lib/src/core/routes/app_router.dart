@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';

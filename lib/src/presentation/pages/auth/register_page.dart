@@ -1,88 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import '../../../core/routes/route_names.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth/auth_provider.dart';
+import '../../../data/models/auth/user_model.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final nameController = TextEditingController();
-    final surnameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
+}
 
+class _RegisterPageState extends ConsumerState<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _nomController = TextEditingController();
+  final _cognomsController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _telefonController = TextEditingController();
+  bool _isProfessional = false;
+
+  void _submit() async {
+    if (_formKey.currentState!.validate()) {
+      final request = RegisterRequest(
+        nom: _nomController.text,
+        cognoms: _cognomsController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        telefon: _telefonController.text,
+        tipus: _isProfessional,
+        foto: 'default.jpg',
+      );
+
+      final result = await ref.read(registerProvider(request).future);
+      if (result) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Registro completado')));
+        Navigator.pop(context); // o redirigir al login
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 80),
-            const Text(
-              'Reforma360',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text('Regístrate en menos de 1 minuto'),
-            const SizedBox(height: 24),
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: surnameController,
-              decoration: const InputDecoration(labelText: 'Apellidos'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Teléfono (opcional)',
+      appBar: AppBar(title: const Text("Registrar-se")),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                controller: _nomController,
+                decoration: const InputDecoration(labelText: 'Nom'),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Correo electrónico',
+              TextFormField(
+                controller: _cognomsController,
+                decoration: const InputDecoration(labelText: 'Cognoms'),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Contraseña'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Repite la contraseña',
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
               ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 60,
-                  vertical: 16,
-                ),
+              TextFormField(
+                controller: _telefonController,
+                decoration: const InputDecoration(labelText: 'Telèfon'),
               ),
-              child: const Text('Regístrate'),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => context.go(RouteNames.login),
-              child: const Text('Iniciar sesión'),
-            ),
-          ],
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Contrasenya'),
+                obscureText: true,
+              ),
+              SwitchListTile(
+                title: const Text('Ets professional?'),
+                value: _isProfessional,
+                onChanged: (val) => setState(() => _isProfessional = val),
+              ),
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text("Registrar"),
+              ),
+            ],
+          ),
         ),
       ),
     );
