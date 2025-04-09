@@ -34,3 +34,7 @@ final loginUserUseCaseProvider = Provider<LoginUser>((ref) {
   final repo = ref.read(authRepositoryProvider);
   return LoginUser(repo);
 });
+
+final userProvider = StateProvider<UserModel?>((ref) => null);
+
+

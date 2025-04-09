@@ -10,5 +10,5 @@ final publicacionsProvider = FutureProvider.autoDispose<List<PublicacioModel>>((
   ref,
 ) async {
   final ds = ref.read(publicacionsRemoteDSProvider);
-  return ds.getPublicacions();
+  return ds.getPublicacions(); // <--- Este método DEBE existir
 });

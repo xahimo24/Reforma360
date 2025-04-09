@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // <-- Import
 import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
@@ -25,12 +26,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       };
 
       try {
+        // 1) Llamamos al loginProvider para hacer login en el backend
         final user = await ref.read(loginProvider(credentials).future);
 
+        // 2) Guardamos el usuario en SharedPreferences
+        await _saveUserSession(user);
+
+        // 3) Mostramos snackbar de bienvenida
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Bienvenido, ${user.nom}')));
 
+        // 4) Redirigimos a Home
         context.go(RouteNames.home);
       } catch (e) {
         ScaffoldMessenger.of(
@@ -38,6 +45,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ).showSnackBar(SnackBar(content: Text('Error al iniciar sesión: $e')));
       }
     }
+  }
+
+  // Función para guardar la sesión del usuario en SharedPreferences
+  Future<void> _saveUserSession(UserModel user) async {
+    final prefs = await SharedPreferences.getInstance();
+    // Guarda los campos que necesites. Ejemplo:
+    prefs.setInt('userId', user.id);
+    prefs.setString('nom', user.nom);
+    prefs.setString('cognoms', user.cognoms);
+    prefs.setString('email', user.email);
+    prefs.setString('telefon', user.telefon);
+    // 'tipus' lo guardamos como bool, si te interesa
+    prefs.setBool('tipus', user.tipus);
+    // 'foto' si lo usas
+    prefs.setString('foto', user.foto);
   }
 
   @override
