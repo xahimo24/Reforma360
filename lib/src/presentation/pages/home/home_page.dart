@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/publicacions/publicacions_provider.dart';
+import '/../src/presentation/pages/profile/profile_page.dart'; 
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -14,12 +15,18 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Lista de pantallas según el bottom nav
     final pages = [
+      // 0 - Inicio
       _buildFeed(),
+      // 1 - Buscar
       const Center(child: Text("Buscar")),
+      // 2 - Notificaciones
       const Center(child: Text("Notificaciones")),
+      // 3 - Mensajes
       const Center(child: Text("Mensajes")),
-      const Center(child: Text("Perfil")),
+      // 4 - Perfil
+      const ProfilePage(), // <-- Importa tu ProfilePage
     ];
 
     return Scaffold(
