@@ -31,6 +31,9 @@ class AuthRemoteDataSource {
       body: jsonEncode({'email': email, 'password': password}),
     );
 
+    // Aquí ves qué está devolviendo el servidor
+    print('Raw response: ${response.body}');
+
     final data = jsonDecode(response.body);
     if (data['success']) {
       return UserModel.fromJson(data['user']);

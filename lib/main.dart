@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'src/core/routes/app_router.dart';
+import 'package:reforma360/src/core/routes/app_router.dart';
+import 'package:reforma360/src/core/theme/app_theme.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print("🔥 Firebase inicializado correctamente");
+void main() {
   runApp(const ProviderScope(child: Reforma360App()));
 }
 
@@ -20,8 +16,12 @@ class Reforma360App extends StatelessWidget {
       title: 'Reforma360',
       debugShowCheckedModeBanner: false,
       routerConfig: appRouter,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      // Tema claro
+      theme: AppTheme.whiteBlackLightTheme,
+      // Tema oscuro
+      darkTheme: AppTheme.whiteBlackDarkTheme,
+      // Para respetar el modo del sistema (claro/oscuro)
+      themeMode: ThemeMode.system,
     );
   }
 }
