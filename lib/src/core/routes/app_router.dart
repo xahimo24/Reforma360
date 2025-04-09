@@ -7,6 +7,9 @@ import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';
 import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/recover_password_page.dart';
+import 'package:reforma360/src/presentation/pages/feed/feed_page.dart';
+import 'package:reforma360/src/presentation/pages/notification/notification_page.dart';
+import 'package:reforma360/src/presentation/pages/messages/messages_menu_page.dart';
 
 // Provider donde está tu usuario (debes crearlo si no existe)
 import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
@@ -70,8 +73,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HomePage(),
       ),
       GoRoute(
-        path: RouteNames.recoverPassword,
-        builder: (context, state) => const RecoverPasswordPage(),
+        path: RouteNames.feed,
+        name: 'feed',
+        builder: (context, state) => const FeedPage(),
+      ),
+      GoRoute(
+        path: RouteNames.notifications,
+        name: 'notifications',
+        builder: (context, state) => const NotificationPage(),
+      ),
+      GoRoute(
+        path: RouteNames.messages,
+        name: 'messages',
+        builder: (context, state) => const MessagesPage(),
       ),
     ],
   );

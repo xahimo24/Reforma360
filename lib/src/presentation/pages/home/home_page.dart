@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/publicacions/publicacions_provider.dart';
-import '/../src/presentation/pages/profile/profile_page.dart'; 
+import '/../src/presentation/pages/profile/profile_page.dart';
+import '../../widgets/shared/bottom_navigator.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -11,41 +12,26 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    // Lista de pantallas según el bottom nav
-    final pages = [
-      // 0 - Inicio
-      _buildFeed(),
-      // 1 - Buscar
-      const Center(child: Text("Buscar")),
-      // 2 - Notificaciones
-      const Center(child: Text("Notificaciones")),
-      // 3 - Mensajes
-      const Center(child: Text("Mensajes")),
-      // 4 - Perfil
-      const ProfilePage(), // <-- Importa tu ProfilePage
-    ];
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Reforma360")),
-      body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Buscar"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: "Notificaciones",
+      appBar: AppBar(
+        title: const Text('Home'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+            },
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: "Mensajes"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
         ],
       ),
+      body: _buildFeed(),
+      bottomNavigationBar: const BottomNavigation(currentIndex: 0),
     );
   }
 
