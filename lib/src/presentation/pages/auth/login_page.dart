@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart'; // Ajusta según uses GoRouter o Navigator
 import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   ConsumerState<LoginPage> createState() => _LoginPageState();
@@ -18,41 +18,44 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      final credentials = {
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      };
+  bool _isLoading = false; // Para mostrar indicador de carga
 
-      try {
-        // 1) Pedimos login al backend vía loginProvider
-        final user = await ref.read(loginProvider(credentials).future);
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
 
-        // 2) Guardamos el user en el userProvider (ya no estará null)
-        ref.read(userProvider.notifier).state = user;
+    final credentials = {
+      'email': _emailController.text.trim(),
+      'password': _passwordController.text.trim(),
+    };
 
-        // 3) Guardamos también en SharedPreferences
-        await _saveUserSession(user);
+    try {
+      final user = await ref.read(loginProvider(credentials).future);
 
-        // 4) Notificación de bienvenida
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Bienvenido, ${user.nom}')));
+      // Guardamos el user en el provider
+      ref.read(userProvider.notifier).state = user;
 
-        // 5) Redirigimos a home
-        context.go(RouteNames.home);
-      } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error al iniciar sesión: $e')));
+      // Guardar en SharedPreferences si quieres persistir la sesión
+      await _saveUserSession(user);
+
+      // Ir a Home
+      if (mounted) {
+        context.go(RouteNames.home); // O Navigator.pushNamed(context, '/home');
+      }
+    } catch (e) {
+      // Mostrar error
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al iniciar sesión: $e')));
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
 
   Future<void> _saveUserSession(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
-    // Guarda los campos que necesites
     prefs.setInt('userId', user.id);
     prefs.setString('nom', user.nom);
     prefs.setString('cognoms', user.cognoms);
@@ -64,66 +67,138 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Center(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // LOGO / TÍTULO
+                const SizedBox(height: 48),
+
+                // Tu logo si lo tienes con Image.asset(), de momento un placeholder
+                // Si tienes un SVG, usa flutter_svg, etc.
+                // Ejemplo:
+                // Image.asset('assets/logo.png', height: 80),
                 const Text(
                   'Reforma360',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Inspírate y reforma',
+                  style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
-                const Text('Inspírate y reforma'),
+                const Text(
+                  'Bienvenido, empieza ya a usar Reforma360',
+                  style: TextStyle(fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 32),
+
+                // EMAIL
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Correo electrónico',
                   ),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Introduce tu email'
-                              : null,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Introduce tu email';
+                    }
+                    // Puedes añadir más validaciones
+                    return null;
+                  },
+                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
+
+                // CONTRASEÑA
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Contraseña'),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Introduce tu contraseña'
-                              : null,
+                  validator: (val) {
+                    if (val == null || val.isEmpty) {
+                      return 'Introduce tu contraseña';
+                    }
+                    return null;
+                  },
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _submit(),
                 ),
+
                 const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 60,
-                      vertical: 16,
+
+                // Botón iniciar sesión
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.black, // Forzar color en modo oscuro
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
+                    child:
+                        _isLoading
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                            : const Text(
+                              'Iniciar sesión',
+                              style: TextStyle(color: Colors.white),
+                            ),
                   ),
-                  child: const Text('Iniciar sesión'),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Separador
+                Row(
+                  children: const [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('o'),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.go(RouteNames.register),
-                  child: const Text('Regístrate'),
+
+                // Botón "Regístrate"
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.go(RouteNames.register),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Regístrate'),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () => context.go(RouteNames.recoverPassword),
-                  child: const Text('¿Olvidaste tu contraseña?'),
+
+                const SizedBox(height: 16),
+
+                // Footer con políticas
+                Text(
+                  'Al hacer clic en continuar, aceptas nuestros Términos de servicio y Política de privacidad',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall,
                 ),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),

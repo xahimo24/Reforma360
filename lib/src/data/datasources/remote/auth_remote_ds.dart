@@ -4,7 +4,7 @@ import '../../models/auth/user_model.dart';
 import '../../models/auth/register_request.dart';
 
 class AuthRemoteDataSource {
-  final String baseUrl = 'http://desktop-5fp6qps/reforma360_api';
+  final String baseUrl = 'http://10.100.0.12/reforma360_api';
 
   Future<bool> registerUser(RegisterRequest user) async {
     final response = await http.post(

@@ -21,62 +21,62 @@ class ProfilePage extends ConsumerWidget {
     final userPubsAsync = ref.watch(userPublicationsProvider(user.id));
 
     return Scaffold(
-      // APP BAR estilo: + a la izquierda, nombre en medio, logout a la derecha
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () {
-            // Aquí lo que quieras hacer con el "+" (nueva publicación, etc.)
+    // APP BAR estilo: + a la izquierda, nombre en medio, logout a la derecha
+    appBar: AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.add),
+        onPressed: () {
+          // Aquí lo que quieras hacer con el "+" (nueva publicación, etc.)
+        },
+      ),
+      centerTitle: true,
+      title: Text('${user.nom}'), // Nombre en el centro
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Confirmar cierre de sesión'),
+                  content: const Text(
+                    '¿Estás seguro de que quieres cerrar sesión?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false); // Cancelar
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true); // Confirmar
+                      },
+                      child: const Text('Cerrar sesión'),
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (confirm == true) {
+              // Cerrar sesión
+              ref.read(userProvider.notifier).state = null;
+              await _clearPrefs();
+
+              // Redirigir a la página de login
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
+            }
           },
         ),
-        centerTitle: true,
-        title: Text('${user.nom}'), // Nombre en el centro
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Confirmar cierre de sesión'),
-                    content: const Text(
-                      '¿Estás seguro de que quieres cerrar sesión?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false); // Cancelar
-                        },
-                        child: const Text('Cancelar'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(true); // Confirmar
-                        },
-                        child: const Text('Cerrar sesión'),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              if (confirm == true) {
-                // Cerrar sesión
-                ref.read(userProvider.notifier).state = null;
-                await _clearPrefs();
-
-                // Redirigir a la página de login
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              }
-            },
-          ),
-        ],
-      ),
+      ],
+    ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

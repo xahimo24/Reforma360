@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../models/publicacio_model.dart';
 
 class PublicacionsRemoteDataSource {
-  final String baseUrl = 'http://desktop-5fp6qps/refo1rma360_api';
+  final String baseUrl = 'http://10.100.0.12/reforma360_api';
 
   /// Trae todas las publicaciones (get_publicacions.php)
   Future<List<PublicacioModel>> getPublicacions() async {
