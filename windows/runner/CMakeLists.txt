@@ -16,6 +16,11 @@ add_executable(${BINARY_NAME} WIN32
   "runner.exe.manifest"
 )
 
+# === AÑADIDO PARA IGNORAR EL WARNING LNK4099 ===
+if(MSVC)
+  target_link_options(${BINARY_NAME} PRIVATE /IGNORE:4099)
+endif()
+
 # Apply the standard set of build settings. This can be removed for applications
 # that need different build settings.
 apply_standard_settings(${BINARY_NAME})

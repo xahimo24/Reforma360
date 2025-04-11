@@ -19,6 +19,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_gherkin: ^2.0.0
+  test: any
+  build_runner: any
+  mockito: ^5.0.0 # (opcional para mocks)
+  integration_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
