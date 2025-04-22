@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../providers/publicacions/user_publications_provider.dart';
 import '../../../core/routes/route_names.dart';
-import '../profile/edit_profile_page.dart';
+import '../../widgets/shared/bottom_navigator.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -165,39 +164,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
 
       // BottomNavigationBar visible
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) {
-          setState(() => _currentIndex = i);
-          switch (i) {
-            case 0:
-              context.go(RouteNames.home);
-              break;
-            case 1:
-              context.go(RouteNames.search);
-              break;
-            case 2:
-              context.go(RouteNames.notifications);
-              break;
-            case 3:
-              context.go(RouteNames.messages);
-              break;
-            case 4:
-              context.go(RouteNames.profile);
-              break;
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Avisos',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Mensajes'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-        ],
-      ),
+      bottomNavigationBar: const BottomNavigation(currentIndex: 0),
     );
   }
 

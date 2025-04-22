@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/publicacions/publicacions_provider.dart';
-import '/../src/presentation/pages/profile/profile_page.dart';
 import '../../widgets/shared/bottom_navigator.dart';
-
+import 'package:go_router/go_router.dart';
+import '../../../core/routes/route_names.dart';
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -20,12 +20,9 @@ class _HomePageState extends ConsumerState<HomePage> {
         title: const Text('Home'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.add),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
+              context.go(RouteNames.newPost);
             },
           ),
         ],

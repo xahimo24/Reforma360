@@ -7,6 +7,7 @@ import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
 
+
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
 
