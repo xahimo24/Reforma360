@@ -101,24 +101,29 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               children: [
                 // Encabezado estilo Figma
                 const SizedBox(height: 16),
-                Text(
-                  'Reforma360',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Text(
+                    'Reforma360',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Inspírate y reforma',
-                  style: TextStyle(fontSize: 16),
+                const Center(
+                  child: Text(
+                    'Inspírate y reforma',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Regístrate en menos de 1 minuto',
-                  style: TextStyle(fontSize: 16),
+                const Center(
+                  child: Text(
+                    'Regístrate en menos de 1 minuto',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
                 const SizedBox(height: 24),
-
                 // Nombre
                 TextFormField(
                   controller: _nomController,
@@ -237,15 +242,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 const SizedBox(height: 16),
 
                 // Botón de “¿Ya tienes cuenta? Inicia sesión”
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      // Volver a login
-                      // Si usas GoRouter:
-                      context.go(RouteNames.login);
-                      // O Navigator.pop(context);
-                    },
-                    child: const Text('Iniciar sesión'),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.go(RouteNames.login),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('¿Ya tienes cuenta? Inicia sesión'),
                   ),
                 ),
 

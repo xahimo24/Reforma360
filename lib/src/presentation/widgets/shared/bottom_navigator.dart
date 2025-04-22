@@ -24,6 +24,9 @@ class BottomNavigation extends StatelessWidget {
       case 3:
         context.go(RouteNames.messages);
         break;
+      case 4:
+        context.go(RouteNames.profile);
+        break;
     }
   }
 
@@ -48,6 +51,10 @@ class BottomNavigation extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.message),
           label: 'Mensajes',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Perfil',
         ),
       ],
     );

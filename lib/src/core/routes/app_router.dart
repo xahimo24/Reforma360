@@ -1,91 +1,81 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 // Páginas
 import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';
-import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/recover_password_page.dart';
+import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/feed/feed_page.dart';
 import 'package:reforma360/src/presentation/pages/notification/notification_page.dart';
 import 'package:reforma360/src/presentation/pages/messages/messages_menu_page.dart';
+import 'package:reforma360/src/presentation/pages/profile/profile_page.dart';
+import 'package:reforma360/src/presentation/pages/profile/edit_profile_page.dart';
 
-// Provider donde está tu usuario (debes crearlo si no existe)
+// Provider user
 import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
 
 import 'route_names.dart';
 
-/// PROVEDOR global para crear/retornar tu GoRouter
+/// Proveedor que devuelve una instancia única de GoRouter
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    // Empezamos en /login o donde prefieras
     initialLocation: RouteNames.login,
 
-    // Aquí hacemos la lógica de redirección
+    // —— Redirecciones de sesión ——
     redirect: (context, state) {
-      // Leemos el usuario desde userProvider
       final user = ref.read(userProvider);
+      final loc = state.uri.path;
 
-      // Obtenemos la ruta actual:
-      final location = state.uri.path;
-      // Rutas que SÍ permitimos cuando user == null
-      // (por ejemplo login, register, recover password)
-      final goingToLogin =
-          location == RouteNames.login ||
-          location == RouteNames.register ||
-          location == RouteNames.recoverPassword;
+      final isAuthRoute =
+          loc == RouteNames.login ||
+          loc == RouteNames.register ||
+          loc == RouteNames.recoverPassword;
 
-      // Si NO está logueado y NO va a /login o /register => manda a login
-      if (user == null && !goingToLogin) {
-        return RouteNames.login;
-      }
+      // No logueado → solo puede ir a rutas de auth
+      if (user == null && !isAuthRoute) return RouteNames.login;
 
-      // Si SÍ está logueado y va a /login o /register => manda a /home
-      if (user != null && goingToLogin) {
-        return RouteNames.home;
-      }
+      // Logueado → si intenta ir a login / register lo mando a home
+      if (user != null && isAuthRoute) return RouteNames.home;
 
-      // Si no cumplimos ninguna de esas condiciones, no redirigimos
-      return null;
+      return null; // sin cambios
     },
 
-    // Definimos las rutas
+    // —— Declaración de rutas ——
     routes: [
-      GoRoute(
-        path: RouteNames.login,
-        name: 'login',
-        builder: (context, state) => const LoginPage(),
-      ),
+      // AUTH
+      GoRoute(path: RouteNames.login, builder: (_, __) => const LoginPage()),
       GoRoute(
         path: RouteNames.register,
-        name: 'register',
-        builder: (context, state) => const RegisterPage(),
+        builder: (_, __) => const RegisterPage(),
       ),
       GoRoute(
         path: RouteNames.recoverPassword,
-        name: 'recoverPassword',
-        builder: (context, state) => const RecoverPasswordPage(),
+        builder: (_, __) => const RecoverPasswordPage(),
       ),
-      GoRoute(
-        path: RouteNames.home,
-        name: 'home',
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
-        path: RouteNames.feed,
-        name: 'feed',
-        builder: (context, state) => const FeedPage(),
-      ),
+
+      // MAIN SCREENS
+      GoRoute(path: RouteNames.home, builder: (_, __) => const HomePage()),
+      GoRoute(path: RouteNames.feed, builder: (_, __) => const FeedPage()),
       GoRoute(
         path: RouteNames.notifications,
-        name: 'notifications',
-        builder: (context, state) => const NotificationPage(),
+        builder: (_, __) => const NotificationPage(),
       ),
       GoRoute(
         path: RouteNames.messages,
-        name: 'messages',
-        builder: (context, state) => const MessagesPage(),
+        builder: (_, __) => const MessagesPage(),
+      ),
+      GoRoute(
+        path: RouteNames.profile,
+        builder: (_, __) => const ProfilePage(),
+      ),
+
+      // EDIT PROFILE (extra recibe Map con los datos)
+      GoRoute(
+        path: RouteNames.editProfile,
+        name: 'editProfile',
+        builder: (context, state) => const EditProfilePage(),
       ),
     ],
   );
