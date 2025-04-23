@@ -6,6 +6,7 @@ class UserModel {
   final String telefon;
   final bool tipus;
   final String foto;
+  final String? bio; // 👈 nuevo campo opcional
 
   UserModel({
     required this.id,
@@ -15,6 +16,7 @@ class UserModel {
     required this.telefon,
     required this.tipus,
     required this.foto,
+    this.bio, // 👈 lo añadimos al constructor
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class UserModel {
       telefon: json['telefon'] ?? '',
       tipus: json['tipus'].toString() == '1',
       foto: json['foto'] ?? '',
+      bio: json['bio'], // 👈 lo mapeamos desde el JSON
     );
   }
 
@@ -38,6 +41,7 @@ class UserModel {
       'telefon': telefon,
       'tipus': tipus ? 1 : 0,
       'foto': foto,
+      'bio': bio, // 👈 lo incluimos si lo quieres enviar al servidor
     };
   }
 }

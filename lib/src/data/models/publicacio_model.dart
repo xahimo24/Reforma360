@@ -5,12 +5,18 @@ class PublicacioModel {
   final String contingut;
   final DateTime dataPublicacio;
 
+  // Nuevos campos que vienen desde la tabla Usuaris
+  final String autorNombre;
+  final String autorFoto;
+
   PublicacioModel({
     required this.id,
     required this.idUsuari,
     required this.descripcio,
     required this.contingut,
     required this.dataPublicacio,
+    required this.autorNombre,
+    required this.autorFoto,
   });
 
   factory PublicacioModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +26,10 @@ class PublicacioModel {
       descripcio: json['descripcio'],
       contingut: json['contingut'],
       dataPublicacio: DateTime.parse(json['data_publicacio']),
+      autorNombre: json['autor_nombre'] ?? 'Usuario',
+      autorFoto:
+          json['autor_foto'] ??
+          '', // Puedes poner una imagen por defecto si está vacío
     );
   }
 }

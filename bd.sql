@@ -10,7 +10,8 @@ CREATE TABLE Usuaris (
     contrasenya VARCHAR(255) NOT NULL,
     telefon VARCHAR(255) NOT NULL,
     tipus BOOLEAN NOT NULL,
-    foto VARCHAR(255) NOT NULL
+    foto VARCHAR(255) NOT NULL,
+    bio TEXT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE Profesionals (
