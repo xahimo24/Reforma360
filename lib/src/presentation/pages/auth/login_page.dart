@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart'; // Ajusta según uses GoRouter o Navi
 import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
+import 'verify_user_page.dart'; // Importa la página de recuperación de contraseña
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -131,6 +132,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   },
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _submit(),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Botón para recuperar contraseña
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      // Navega a la página de recuperación de contraseña
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const VerifyUserPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 32),
