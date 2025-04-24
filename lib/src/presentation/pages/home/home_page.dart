@@ -7,6 +7,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../providers/publicacions/publicacions_provider.dart';
 import '../../../core/routes/route_names.dart';
 import '../../widgets/shared/bottom_navigator.dart';
+import '../../providers/auth/auth_provider.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,7 +15,14 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final feedAsync = ref.watch(publicacionsProvider);
-
+    final user = ref.watch(userProvider);
+    final avatarUrl =
+        user != null
+            ? user.foto.startsWith('http')
+                ? user.foto
+                : 'http://10.100.0.12/reforma360_api/${user.foto}'
+            : null;
+            
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -36,7 +44,7 @@ class HomePage extends ConsumerWidget {
               final pub = posts[i];
               final imageUrl =
                   'http://10.100.0.12/reforma360_api/${pub.contingut}';
-              final avatarUrl =
+              final postAvatarUrl =
                   'http://10.100.0.12/reforma360_api/${pub.autorFoto}';
 
               return Card(
@@ -54,7 +62,7 @@ class HomePage extends ConsumerWidget {
                       Row(
                         children: [
                           CircleAvatar(
-                            backgroundImage: NetworkImage(avatarUrl),
+                            backgroundImage: NetworkImage(postAvatarUrl),
                             radius: 18,
                           ),
                           const SizedBox(width: 8),
@@ -117,7 +125,10 @@ class HomePage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error cargando feed: $err')),
       ),
-      bottomNavigationBar: const BottomNavigation(currentIndex: 0),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: 0,
+        userAvatarUrl: avatarUrl,
+      ),
     );
   }
 }

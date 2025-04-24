@@ -297,7 +297,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
 
       // ───── NAV INFERIOR ─────
-      bottomNavigationBar: const BottomNavigation(currentIndex: 4),
+      bottomNavigationBar: BottomNavigation (currentIndex: 4, userAvatarUrl: avatarUrl, // Pasamos la URL del avatar
+    ),
     );
   }
 }
