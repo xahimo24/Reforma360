@@ -261,7 +261,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             (e, _) => Center(child: Text('Error al cargar publicaciones: $e')),
       ),
 
-      bottomNavigationBar: const BottomNavigation(currentIndex: 4),
+      bottomNavigationBar: BottomNavigation (currentIndex: 4, userAvatarUrl: avatarUrl, // Pasamos la URL del avatar
+    ),
     );
   }
 }
