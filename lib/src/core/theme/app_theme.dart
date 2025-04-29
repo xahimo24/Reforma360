@@ -1,37 +1,44 @@
+// lib/src/core/theme/app_theme.dart
+// -----------------------------------------------------------------------------
+// Tema claro / oscuro 100 % coherente con el modo del sistema.
+// Incluye correcciones para SnackBars, diálogos, PopupMenus, Dropdowns,
+// ProgressIndicators, Cards, FABs y usa MaterialStateProperty.all()
+// (el anterior MaterialStatePropertyAll provocaba warnings).
+// -----------------------------------------------------------------------------
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // ---------------------------
-  // TEMA CLARO: Fondo blanco
-  // ---------------------------
-  static final ThemeData whiteBlackLightTheme = ThemeData(
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMA CLARO  (fondo blanco, texto negro)
+  // ═══════════════════════════════════════════════════════════════════════════
+  static final ThemeData light = ThemeData(
     brightness: Brightness.light,
+    useMaterial3: true, // M3 = hereda mejor los colores
     scaffoldBackgroundColor: Colors.white,
-    useMaterial3: false,
+    primaryColor: Colors.black,
 
-    // Definimos un colorScheme minimalista (blanco/negro)
-    colorScheme: const ColorScheme(
-      brightness: Brightness.light,
-      primary: Colors.black, // Color principal: negro
-      onPrimary: Colors.white, // Texto en botones principales: blanco
+    colorScheme: const ColorScheme.light().copyWith(
+      primary: Colors.black,
+      onPrimary: Colors.white,
       secondary: Colors.black,
       onSecondary: Colors.white,
-      error: Colors.red,
-      onError: Colors.white,
       background: Colors.white,
       onBackground: Colors.black,
       surface: Colors.white,
       onSurface: Colors.black,
+      error: Colors.red,
+      onError: Colors.white,
     ),
 
-    // Texto en negro
+    // ---------- Tipografía ----------
     textTheme: const TextTheme(
       bodyLarge: TextStyle(color: Colors.black),
       bodyMedium: TextStyle(color: Colors.black),
       bodySmall: TextStyle(color: Colors.black),
+      titleMedium: TextStyle(color: Colors.black),
     ),
 
-    // AppBar en blanco con iconos/texto negros
+    // ---------- AppBar ----------
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       elevation: 0,
@@ -39,25 +46,27 @@ class AppTheme {
       iconTheme: IconThemeData(color: Colors.black),
     ),
 
-    // Iconos en negro
+    // ---------- Iconos ----------
     iconTheme: const IconThemeData(color: Colors.black),
 
-    // ElevatedButton: fondo negro, texto blanco
+    // ---------- Botones ----------
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(Colors.black),
-        foregroundColor: MaterialStatePropertyAll(Colors.white),
+        backgroundColor: MaterialStateProperty.all(Colors.black),
+        foregroundColor: MaterialStateProperty.all(Colors.white),
       ),
     ),
-
-    // TextButton: texto negro
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStatePropertyAll(Colors.black),
+        foregroundColor: MaterialStateProperty.all(Colors.black),
       ),
     ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+    ),
 
-    // Campos de texto subrayados en negro
+    // ---------- Campos de texto ----------
     inputDecorationTheme: const InputDecorationTheme(
       labelStyle: TextStyle(color: Colors.black),
       enabledBorder: UnderlineInputBorder(
@@ -69,44 +78,79 @@ class AppTheme {
       hintStyle: TextStyle(color: Colors.grey),
     ),
 
-    // Barra de navegación inferior en blanco, iconos negros
+    // ---------- Barras inferiores ----------
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.grey,
     ),
+
+    // ---------- Widgets que antes “fallaban” ----------
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: Colors.black,
+      contentTextStyle: TextStyle(color: Colors.white),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: Colors.black,
+    ),
+    popupMenuTheme: const PopupMenuThemeData(
+      color: Colors.white,
+      textStyle: TextStyle(color: Colors.black),
+    ),
+    dropdownMenuTheme: const DropdownMenuThemeData(
+      textStyle: TextStyle(color: Colors.black),
+    ),
+    dialogTheme: const DialogTheme(
+      backgroundColor: Colors.white,
+      titleTextStyle: TextStyle(color: Colors.black, fontSize: 18),
+      contentTextStyle: TextStyle(color: Colors.black),
+    ),
+    cardTheme: CardTheme(
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    listTileTheme: const ListTileThemeData(iconColor: Colors.black),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: MaterialStateProperty.all(Colors.black),
+      checkColor: MaterialStateProperty.all(Colors.white),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: MaterialStateProperty.all(Colors.black),
+      trackColor: MaterialStateProperty.all(Colors.black26),
+    ),
   );
 
-  // ---------------------------
-  // TEMA OSCURO: Fondo negro
-  // ---------------------------
-  static final ThemeData whiteBlackDarkTheme = ThemeData(
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMA OSCURO  (fondo negro, texto blanco)
+  // ═══════════════════════════════════════════════════════════════════════════
+  static final ThemeData dark = ThemeData(
     brightness: Brightness.dark,
+    useMaterial3: true,
     scaffoldBackgroundColor: Colors.black,
-    useMaterial3: false,
+    primaryColor: Colors.white,
 
-    colorScheme: const ColorScheme(
-      brightness: Brightness.dark,
-      primary: Colors.white, // Color principal: blanco
-      onPrimary: Colors.black, // Texto en botones principales: negro
+    colorScheme: const ColorScheme.dark().copyWith(
+      primary: Colors.white,
+      onPrimary: Colors.black,
       secondary: Colors.white,
       onSecondary: Colors.black,
-      error: Colors.red,
-      onError: Colors.white,
       background: Colors.black,
       onBackground: Colors.white,
       surface: Colors.black,
       onSurface: Colors.white,
+      error: Colors.red,
+      onError: Colors.white,
     ),
 
-    // Texto en blanco
     textTheme: const TextTheme(
       bodyLarge: TextStyle(color: Colors.white),
       bodyMedium: TextStyle(color: Colors.white),
       bodySmall: TextStyle(color: Colors.white),
+      titleMedium: TextStyle(color: Colors.white),
     ),
 
-    // AppBar en negro con iconos/texto blancos
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.black,
       elevation: 0,
@@ -114,27 +158,24 @@ class AppTheme {
       iconTheme: IconThemeData(color: Colors.white),
     ),
 
-    // Iconos en blanco
     iconTheme: const IconThemeData(color: Colors.white),
 
-    // ElevatedButton: fondo blanco, texto negro (o como prefieras)
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        // Fondo blanco
         backgroundColor: MaterialStateProperty.all(Colors.white),
-        // Texto negro
         foregroundColor: MaterialStateProperty.all(Colors.black),
       ),
     ),
-
-    // TextButton: texto blanco
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStatePropertyAll(Colors.white),
+        foregroundColor: MaterialStateProperty.all(Colors.white),
       ),
     ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+    ),
 
-    // Campos de texto subrayados en blanco
     inputDecorationTheme: const InputDecorationTheme(
       labelStyle: TextStyle(color: Colors.white),
       enabledBorder: UnderlineInputBorder(
@@ -146,11 +187,45 @@ class AppTheme {
       hintStyle: TextStyle(color: Colors.grey),
     ),
 
-    // Barra de navegación inferior en negro, iconos blancos
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.black,
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.grey,
+    ),
+
+    snackBarTheme: const SnackBarThemeData(
+      backgroundColor: Colors.white,
+      contentTextStyle: TextStyle(color: Colors.black),
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: Colors.white,
+    ),
+    popupMenuTheme: const PopupMenuThemeData(
+      color: Colors.black,
+      textStyle: TextStyle(color: Colors.white),
+    ),
+    dropdownMenuTheme: const DropdownMenuThemeData(
+      textStyle: TextStyle(color: Colors.white),
+    ),
+    dialogTheme: const DialogTheme(
+      backgroundColor: Colors.black,
+      titleTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+      contentTextStyle: TextStyle(color: Colors.white),
+    ),
+    cardTheme: CardTheme(
+      color: Colors.grey.shade900,
+      surfaceTintColor: Colors.grey.shade900,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    listTileTheme: const ListTileThemeData(iconColor: Colors.white),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: MaterialStateProperty.all(Colors.white),
+      checkColor: MaterialStateProperty.all(Colors.black),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: MaterialStateProperty.all(Colors.white),
+      trackColor: MaterialStateProperty.all(Colors.white24),
     ),
   );
 }

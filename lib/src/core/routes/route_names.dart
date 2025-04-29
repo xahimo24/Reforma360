@@ -36,4 +36,7 @@ class RouteNames {
 
   /// Pantalla de nueva publicación
   static const newPost = '/new-post';
+
+  /// Pantalla de profesionales
+  static const professionals = '/professionals';
 }

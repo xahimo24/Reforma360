@@ -20,6 +20,7 @@ CREATE TABLE Profesionals (
     categoria VARCHAR(255) NOT NULL,
     experiencia INT NOT NULL,
     descripcio TEXT NOT NULL,
+    ciudad VARCHAR(50) NOT NULL DEFAULT '';
     FOREIGN KEY (id_usuari) REFERENCES Usuaris(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 

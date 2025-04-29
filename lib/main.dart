@@ -35,6 +35,7 @@ Future<UserModel?> _loadUser() async {
     foto: prefs.getString('foto') ?? '',
   );
 }
+
 class Reforma360App extends ConsumerWidget {
   const Reforma360App({super.key});
 
@@ -48,12 +49,11 @@ class Reforma360App extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       routerConfig: goRouter,
       // Tema claro
-      theme: AppTheme.whiteBlackLightTheme,
+      theme: AppTheme.light,
       // Tema oscuro
-      darkTheme: AppTheme.whiteBlackDarkTheme,
+      darkTheme: AppTheme.dark,
       // Para respetar el modo del sistema (claro/oscuro)
       themeMode: ThemeMode.system,
     );
   }
 }
-
