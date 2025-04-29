@@ -5,6 +5,7 @@ import 'route_names.dart';
 import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/verify_user_page.dart';
+import 'package:reforma360/src/presentation/pages/auth/change_password_page.dart';
 import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/feed/feed_page.dart';
 import 'package:reforma360/src/presentation/pages/notification/notification_page.dart';
@@ -60,6 +61,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.newPost,
         builder: (_, __) => const NewPostPage(),
+      ),
+      GoRoute(
+        path: RouteNames.changePassword,
+        builder: (context, state) {
+          // Recogemos el email que pasamos como extra desde EditProfilePage
+          final email = state.extra as String? ?? '';
+          return ChangePasswordPage(email: email);
+        },
       ),
     ],
   );

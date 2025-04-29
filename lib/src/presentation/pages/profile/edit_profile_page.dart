@@ -1,6 +1,6 @@
 import 'dart:convert'; // Para jsonDecode
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'dart:io'; // Para File y Platform
+import 'package:flutter/foundation.dart'; // Para kIsWeb
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,8 +12,8 @@ import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
 
-/// Página para editar el perfil del usuario, con actualización real en servidor
-/// y eliminación de cuenta con verificación de contraseña.
+/// Página para editar el perfil del usuario,
+/// con actualización real en servidor y eliminación de cuenta.
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
 
@@ -30,8 +30,8 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   late final TextEditingController _emailCtrl;
   late final TextEditingController _bioCtrl;
 
-  File? _profileImage; // Imagen seleccionada localmente
-  bool _isSaving = false; // Indicador de envío en curso
+  File? _profileImage; // Imagen: File local si se cambia
+  bool _isSaving = false; // Indicador de carga
 
   @override
   void initState() {
@@ -54,9 +54,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     super.dispose();
   }
 
-  // -------------------------------------------------------------------------
-  // SELECCIÓN / CAPTURA DE FOTO DE PERFIL
-  // -------------------------------------------------------------------------
+  //───────────────────────────────────────────────────────────────────────────
+  // Elegir o tomar foto de perfil
+  //───────────────────────────────────────────────────────────────────────────
   Future<void> _changeProfilePhoto() async {
     showModalBottomSheet(
       context: context,
@@ -64,7 +64,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           (_) => SafeArea(
             child: Wrap(
               children: [
-                // Opción Galería siempre disponible
+                // Opción: galería
                 ListTile(
                   leading: const Icon(Icons.photo_library),
                   title: const Text('Seleccionar de galería'),
@@ -73,7 +73,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     _pickProfileImage();
                   },
                 ),
-                // Opción Cámara solo si no es Web y el dispositivo la soporta
+                // Opción: cámara (solo Android/iOS)
                 if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
                   ListTile(
                     leading: const Icon(Icons.photo_camera),
@@ -113,14 +113,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // LLAMADA AL ENDPOINT PHP update_profile.php
-  // -------------------------------------------------------------------------
+  //───────────────────────────────────────────────────────────────────────────
+  // Enviar cambios al servidor (update_profile.php)
+  //───────────────────────────────────────────────────────────────────────────
   Future<bool> _updateProfileOnServer(int userId) async {
     final uri = Uri.parse(
       'http://10.100.0.12/reforma360_api/update_profile.php',
     );
-    final request =
+    final req =
         http.MultipartRequest('POST', uri)
           ..fields['id'] = userId.toString()
           ..fields['nom'] = _nombreCtrl.text
@@ -128,31 +128,31 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           ..fields['telefon'] = _telefonoCtrl.text
           ..fields['email'] = _emailCtrl.text
           ..fields['bio'] = _bioCtrl.text;
-    // Si hay nueva imagen, la subimos
+    // Adjuntar nueva foto si hay
     if (_profileImage != null) {
-      request.files.add(
+      req.files.add(
         await http.MultipartFile.fromPath('profile_image', _profileImage!.path),
       );
     }
-    final streamed = await request.send();
-    final respStr = await streamed.stream.bytesToString();
-    final data = jsonDecode(respStr);
+    final streamed = await req.send();
+    final body = await streamed.stream.bytesToString();
+    final data = jsonDecode(body);
     return data['success'] == true;
   }
 
-  // -------------------------------------------------------------------------
-  // GUARDAR CAMBIOS
-  // -------------------------------------------------------------------------
+  //───────────────────────────────────────────────────────────────────────────
+  // Guardar cambios (nombre, apellidos, email, teléfono, bio, foto)
+  //───────────────────────────────────────────────────────────────────────────
   Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isSaving = true);
+
     try {
       final user = ref.read(userProvider)!;
       final ok = await _updateProfileOnServer(user.id);
-      if (!ok) throw Exception('Servidor rechazó los cambios');
+      if (!ok) throw Exception('Servidor rechazó cambios');
 
-      // Actualizar provider localmente
+      // Actualizar estado local
       ref.read(userProvider.notifier).state = UserModel(
         id: user.id,
         nom: _nombreCtrl.text,
@@ -162,7 +162,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         tipus: user.tipus,
         foto:
             _profileImage != null
-                ? 'media/profile/${user.id}.jpg' // ruta relativa a servidor
+                ? 'media/profile/${user.id}.${_profileImage!.path.split('.').last}'
                 : user.foto,
         bio: _bioCtrl.text,
       );
@@ -180,24 +180,21 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // LLAMADA AL ENDPOINT PHP delete_account.php
-  // -------------------------------------------------------------------------
+  //───────────────────────────────────────────────────────────────────────────
+  // Eliminar cuenta con confirmación de contraseña
+  //───────────────────────────────────────────────────────────────────────────
   Future<bool> _deleteAccountOnServer(int userId, String password) async {
     final uri = Uri.parse(
       'http://10.100.0.12/reforma360_api/delete_account.php',
     );
-    final response = await http.post(
+    final resp = await http.post(
       uri,
       body: {'id': userId.toString(), 'password': password},
     );
-    final data = jsonDecode(response.body);
+    final data = jsonDecode(resp.body);
     return data['success'] == true;
   }
 
-  // -------------------------------------------------------------------------
-  // DIÁLOGO DE CONFIRMACIÓN CON CONTRASEÑA
-  // -------------------------------------------------------------------------
   Future<void> _deleteAccount() async {
     final user = ref.read(userProvider)!;
     String pwd = '';
@@ -237,7 +234,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           ),
     );
     if (confirm != true) return;
-    // Intentar eliminar en servidor
+
     final ok = await _deleteAccountOnServer(user.id, pwd);
     if (ok) {
       ref.read(userProvider.notifier).state = null;
@@ -253,21 +250,22 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // BUILD: Estructura de UI completa, con avatar, formulario y botones
-  // -------------------------------------------------------------------------
+  //───────────────────────────────────────────────────────────────────────────
+  // Construcción de la UI
+  //───────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider)!;
     final theme = Theme.of(context);
 
-    // URL de avatar en servidor
+    // URL completa del avatar en servidor
     final networkAvatar =
         user.foto.isNotEmpty
             ? NetworkImage('http://10.100.0.12/reforma360_api/${user.foto}')
             : null;
 
     return Scaffold(
+      // AppBar con botón atrás
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -279,11 +277,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         backgroundColor: theme.scaffoldBackgroundColor,
         foregroundColor: theme.colorScheme.onBackground,
       ),
+
+      // Cuerpo scrollable con avatar, botón y formulario
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           children: [
-            // Avatar con opción de cambiar
+            // Avatar (Network o File) + toque para cambiar
             GestureDetector(
               onTap: _changeProfilePhoto,
               child: CircleAvatar(
@@ -300,11 +300,15 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ),
             const SizedBox(height: 24),
 
-            // Botón cambiar contraseña
+            // Botón Cambiar Contraseña, pasando el email como extra
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => context.go(RouteNames.changePassword),
+                onPressed:
+                    () => context.go(
+                      RouteNames.changePassword,
+                      extra: user.email, // ← se envía el email aquí
+                    ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.black),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -314,7 +318,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ),
             const SizedBox(height: 24),
 
-            // Formulario de datos
+            // Formulario de datos: nombre, apellidos, teléfono, email, bio
             Form(
               key: _formKey,
               child: Column(
@@ -335,10 +339,15 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     keyboard: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 12),
-                  _buildField(_bioCtrl, 'Biografía', maxLines: 3),
+                  _buildField(
+                    _bioCtrl,
+                    'Biografía',
+                    maxLines: 3,
+                    required: false,
+                  ),
                   const SizedBox(height: 24),
 
-                  // Guardar cambios
+                  // Botón Guardar cambios
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -362,7 +371,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Eliminar cuenta
+                  // Enlace para eliminar cuenta
                   TextButton(
                     onPressed: _deleteAccount,
                     child: const Text(
@@ -382,13 +391,14 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     );
   }
 
-  /// Campo de texto reutilizable con validación básica
+  /// Campo de texto reutilizable con validación obligatoria
   Widget _buildField(
     TextEditingController ctrl,
     String label, {
     bool obscure = false,
     int maxLines = 1,
     TextInputType keyboard = TextInputType.text,
+    bool required = true,
   }) {
     return TextFormField(
       controller: ctrl,
@@ -401,10 +411,11 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         filled: true,
         fillColor: Colors.grey.shade100,
       ),
-      validator: (val) {
-        if (val == null || val.isEmpty) return 'El campo $label es obligatorio';
-        return null;
-      },
+      validator:
+          (val) =>
+              required && (val == null || val.isEmpty)
+                  ? 'El campo $label es obligatorio'
+                  : null,
     );
   }
 }

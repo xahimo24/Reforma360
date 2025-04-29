@@ -151,7 +151,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     },
                     child: const Text(
                       '¿Olvidaste tu contraseña?',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ),
