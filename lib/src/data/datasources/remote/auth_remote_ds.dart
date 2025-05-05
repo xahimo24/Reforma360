@@ -6,7 +6,7 @@ import '../../models/auth/register_request.dart';
 class AuthRemoteDataSource {
   final String baseUrl = 'http://10.100.0.12/reforma360_api';
 
-  Future<bool> registerUser(RegisterRequest user) async {
+  Future<int> registerUser(RegisterRequest user) async {
     final response = await http.post(
       Uri.parse('$baseUrl/register.php'),
       headers: {'Content-Type': 'application/json'},
@@ -15,7 +15,7 @@ class AuthRemoteDataSource {
 
     final Map<String, dynamic> data = jsonDecode(response.body);
     if (data['success']) {
-      return true;
+      return data['user']['id'] as int;
     } else {
       throw Exception(data['message'] ?? 'Error al registrar usuario');
     }

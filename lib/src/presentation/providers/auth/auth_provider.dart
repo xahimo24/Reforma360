@@ -10,7 +10,7 @@ final authRemoteDataSourceProvider = Provider((ref) => AuthRemoteDataSource());
 
 // REGISTRO
 final registerProvider = FutureProvider.family
-    .autoDispose<bool, RegisterRequest>((ref, request) async {
+    .autoDispose<int, RegisterRequest>((ref, request) async {
       final dataSource = ref.read(authRemoteDataSourceProvider);
       return await dataSource.registerUser(request);
     });
@@ -36,5 +36,3 @@ final loginUserUseCaseProvider = Provider<LoginUser>((ref) {
 });
 
 final userProvider = StateProvider<UserModel?>((ref) => null);
-
-

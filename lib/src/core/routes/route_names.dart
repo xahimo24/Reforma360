@@ -4,6 +4,7 @@
 /// 🛑 A partir de ahora, TODAS las rutas deben estar aquí definidas
 /// para evitar referencias a constantes inexistentes.
 class RouteNames {
+  // ─── Auth ───
   /// Pantalla de login
   static const login = '/login';
 
@@ -14,13 +15,24 @@ class RouteNames {
   static const recoverPassword = '/recover-password';
 
   /// Pantalla de cambiar contraseña (usuario logueado)
-  static const changePassword = '/change-password'; // ← NUEVA RUTA
+  static const changePassword = '/change-password';
 
+  // ─── Registro multi-step ───
+  /// Paso de foto en el registro
+  static const registerPhoto = '/register-photo';
+
+  /// Paso de profesional en el registro
+  static const registerProfessional = '/register-professional';
+
+  // ─── Main ───
   /// Pantalla principal / feed
   static const home = '/';
 
   /// Feed genérico (si lo usas aparte)
   static const feed = '/feed';
+
+  /// Pantalla de profesionales
+  static const professionals = '/professionals';
 
   /// Notificaciones
   static const notifications = '/notifications';
@@ -36,7 +48,4 @@ class RouteNames {
 
   /// Pantalla de nueva publicación
   static const newPost = '/new-post';
-
-  /// Pantalla de profesionales
-  static const professionals = '/professionals';
 }

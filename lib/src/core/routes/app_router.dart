@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'route_names.dart';
 import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';
+import 'package:reforma360/src/presentation/pages/auth/register_photo_page.dart';
+import 'package:reforma360/src/presentation/pages/auth/register_professional_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/verify_user_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/change_password_page.dart';
 import 'package:reforma360/src/presentation/pages/home/home_page.dart';
@@ -36,6 +38,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.register,
         builder: (_, __) => const RegisterPage(),
+      ),
+      GoRoute(
+        path: RouteNames.registerPhoto,
+        builder: (ctx, state) {
+          final args = state.extra! as Map<String, dynamic>;
+          return RegisterPhotoPage(
+            userId: args['userId'] as int,
+            isProfessional: args['isProfessional'] as bool,
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.registerProfessional,
+        builder: (ctx, state) {
+          final userId = state.extra as int;
+          return RegisterProfessionalPage(userId: userId);
+        },
       ),
       GoRoute(
         path: RouteNames.recoverPassword,

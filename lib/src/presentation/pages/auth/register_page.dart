@@ -1,10 +1,18 @@
+// lib/src/presentation/pages/auth/register_page.dart
+
+import 'dart:convert'; // Para posibles decodificaciones
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart'; // Ajusta si usas Navigator
-import '../../providers/auth/auth_provider.dart';
-import '../../../data/models/auth/register_request.dart';
-import '../../../core/routes/route_names.dart';
+import 'package:go_router/go_router.dart'; // Para navegación con GoRouter
 
+import '../../providers/auth/auth_provider.dart'; // registerProvider
+import '../../../data/models/auth/register_request.dart'; // RegisterRequest
+import '../../../core/routes/route_names.dart'; // RouteNames
+
+/// Pantalla de registro de usuario, paso 0 del flujo multi-step:
+/// - Recoge datos de usuario
+/// - Al pulsar "Regístrate", crea el usuario en el servidor
+/// - Navega al paso de selección de foto
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
 
@@ -14,7 +22,6 @@ class RegisterPage extends ConsumerStatefulWidget {
 
 class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-
   final _nomController = TextEditingController();
   final _cognomsController = TextEditingController();
   final _emailController = TextEditingController();
@@ -22,9 +29,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPassController = TextEditingController();
 
-  bool _isProfessional = false;
+  bool _isProfessional = false; // Si marca "¿Eres profesional?"
 
-  // Método para validar contraseñas
+  /// Valida que la contraseña tenga al menos 6 caracteres
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Introduce una contraseña';
@@ -35,7 +42,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return null;
   }
 
-  // Comprueba que ambas contraseñas coinciden
+  /// Valida que ambas contraseñas coincidan
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Repite la contraseña';
@@ -46,42 +53,42 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return null;
   }
 
+  /// Envía los datos al servidor y, si tiene éxito,
+  /// navega a la página de selección de foto.
   Future<void> _submit() async {
-    // Valida todos los campos del formulario
-    if (_formKey.currentState!.validate()) {
-      final request = RegisterRequest(
-        nom: _nomController.text,
-        cognoms: _cognomsController.text,
-        email: _emailController.text,
-        password: _passwordController.text,
-        telefon: _telefonController.text,
-        tipus: _isProfessional,
-        foto: 'default.jpg',
+    // 1) Validar formulario
+    if (!_formKey.currentState!.validate()) return;
+
+    // 2) Construir el objeto de petición
+    final request = RegisterRequest(
+      nom: _nomController.text.trim(),
+      cognoms: _cognomsController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      telefon: _telefonController.text.trim(),
+      tipus: _isProfessional,
+      foto: 'default.jpg', // Será reemplazado en el siguiente paso
+    );
+
+    try {
+      // 3) Llamada al provider de registro, devuelve el userId
+      final userId = await ref.read(registerProvider(request).future);
+
+      // 4) Feedback visual
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Registro completado')));
+
+      // 5) Navegar al paso de selección de foto
+      context.go(
+        RouteNames.registerPhoto,
+        extra: {'userId': userId, 'isProfessional': _isProfessional},
       );
-
-      try {
-        // Llamamos a registerProvider
-        final result = await ref.read(registerProvider(request).future);
-
-        if (result) {
-          // MOSTRAR SNACKBAR
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Registro completado')));
-
-          // [1] OPCIÓN: Actualizar userProvider con los datos, si quieres
-          // TODO: Si el backend te devuelve el user, guardalo en userProvider
-
-          // [2] Redirigir a la HOME con sesión iniciada
-          context.go(RouteNames.home);
-          // O Navigator.pushNamed(context, '/home'); si usas Navigator
-        }
-      } catch (e) {
-        // Muestra error si falla
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error al registrar: $e')));
-      }
+    } catch (e) {
+      // 6) Mostrar error en caso de fallo
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al registrar: $e')));
     }
   }
 
@@ -90,7 +97,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      // Quitamos appBar para parecerse más al diseño Figma
+      // Sin AppBar para ajustarse al diseño Figma
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -99,8 +106,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Encabezado estilo Figma
                 const SizedBox(height: 16),
+                // Título principal
                 Center(
                   child: Text(
                     'Reforma360',
@@ -124,7 +131,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Nombre
+
+                // Campo Nombre
                 TextFormField(
                   controller: _nomController,
                   decoration: const InputDecoration(
@@ -133,13 +141,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                   validator:
                       (value) =>
-                          value == null || value.isEmpty
+                          (value == null || value.isEmpty)
                               ? 'Introduce tu nombre'
                               : null,
                 ),
                 const SizedBox(height: 16),
 
-                // Apellidos
+                // Campo Apellidos
                 TextFormField(
                   controller: _cognomsController,
                   decoration: const InputDecoration(
@@ -148,22 +156,26 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                   validator:
                       (value) =>
-                          value == null || value.isEmpty
+                          (value == null || value.isEmpty)
                               ? 'Introduce tus apellidos'
                               : null,
                 ),
                 const SizedBox(height: 16),
 
-                // Teléfono (opcional)
+                // Campo Teléfono
                 TextFormField(
                   controller: _telefonController,
-                  decoration: const InputDecoration(
-                    labelText: 'Teléfono (opcional)',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Teléfono'),
+                  keyboardType: TextInputType.phone,
+                  validator:
+                      (value) =>
+                          (value == null || value.isEmpty)
+                              ? 'Introduce tu número de teléfono'
+                              : null,
                 ),
                 const SizedBox(height: 16),
 
-                // Email
+                // Campo Email
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -183,7 +195,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Contraseña
+                // Campo Contraseña
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(labelText: 'Contraseña'),
@@ -192,7 +204,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Repetir contraseña
+                // Campo Repetir Contraseña
                 TextFormField(
                   controller: _confirmPassController,
                   decoration: const InputDecoration(
@@ -203,7 +215,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Switch: ¿Profesional?
+                // Switch “¿Eres profesional?”
                 SwitchListTile(
                   title: const Text('¿Eres profesional?'),
                   value: _isProfessional,
@@ -211,7 +223,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Botón de Registrar
+                // Botón Registrar
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -228,7 +240,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Separador (línea o guion)
+                // Separador “o”
                 Row(
                   children: const [
                     Expanded(child: Divider()),
@@ -241,7 +253,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Botón de “¿Ya tienes cuenta? Inicia sesión”
+                // Botón “¿Ya tienes cuenta? Inicia sesión”
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -252,10 +264,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     child: const Text('¿Ya tienes cuenta? Inicia sesión'),
                   ),
                 ),
-
                 const SizedBox(height: 16),
 
-                // Footer con políticas
+                // Footer términos y privacidad
                 Center(
                   child: Text(
                     'Al hacer clic en continuar, aceptas nuestros Términos de servicio y Política de privacidad',
