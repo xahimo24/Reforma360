@@ -189,13 +189,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         onPressed: () => context.push(RouteNames.editProfile), // Navega a la pàgina d'edició de perfil.
                         child: const Text(
                           'Editar perfil',
-                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     ),

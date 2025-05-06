@@ -67,7 +67,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       password: _passwordController.text,
       telefon: _telefonController.text.trim(),
       tipus: _isProfessional,
-      foto: '/assets/images/user.jpg', // Será reemplazado en el siguiente paso
+      foto: 'assets/images/user.jpg', // Será reemplazado en el siguiente paso
     );
 
     try {
@@ -79,12 +79,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('Registro completado')));
 
-      // 5) Navegar al paso de selección de foto
+      // 5) Navegar al siguiente paso (foto o profesional) y pasar credenciales
       context.go(
         _isProfessional
             ? RouteNames.registerProfessional
             : RouteNames.registerPhoto,
-        extra: {'userId': userId, 'isProfessional': _isProfessional},
+        extra: {
+          'userId': userId,
+          'isProfessional': _isProfessional,
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text,
+        },
       );
     } catch (e) {
       // 6) Mostrar error en caso de fallo

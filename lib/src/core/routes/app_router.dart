@@ -48,6 +48,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return RegisterPhotoPage(
             userId: args['userId'] as int,
             isProfessional: args['isProfessional'] as bool,
+            email: args['email'] as String,
+            password: args['password'] as String,
           );
         },
       ),
@@ -57,6 +59,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final args = state.extra! as Map<String, dynamic>;
           return RegisterProfessionalPage(
             userId: args['userId'] as int,
+            email: args['email'] as String,
+            password: args['password'] as String,
           );
         },
       ),

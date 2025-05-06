@@ -178,7 +178,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
                             ),
                             child: const Text('Select'),
                           ),

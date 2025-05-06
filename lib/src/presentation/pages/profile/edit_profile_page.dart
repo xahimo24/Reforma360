@@ -300,24 +300,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
             ),
             const SizedBox(height: 24),
 
-            // Botón Cambiar Contraseña, pasando el email como extra
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed:
-                    () => context.go(
-                      RouteNames.changePassword,
-                      extra: user.email, // ← se envía el email aquí
-                    ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Cambiar contraseña'),
-              ),
-            ),
-            const SizedBox(height: 24),
-
             // Formulario de datos: nombre, apellidos, teléfono, email, bio
             Form(
               key: _formKey,
@@ -353,7 +335,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     child: ElevatedButton(
                       onPressed: _isSaving ? null : _saveChanges,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child:
@@ -362,7 +343,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
-                                  color: Colors.white,
                                   strokeWidth: 2,
                                 ),
                               )
@@ -371,6 +351,23 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   ),
                   const SizedBox(height: 16),
 
+                  // Botón Cambiar Contraseña, pasando el email como extra
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed:
+                          () => context.go(
+                            RouteNames.changePassword,
+                            extra: user.email, // ← se envía el email aquí
+                          ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Cambiar contraseña'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
                   // Enlace para eliminar cuenta
                   TextButton(
                     onPressed: _deleteAccount,
@@ -409,7 +406,6 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         filled: true,
-        fillColor: Colors.grey.shade100,
       ),
       validator:
           (val) =>
