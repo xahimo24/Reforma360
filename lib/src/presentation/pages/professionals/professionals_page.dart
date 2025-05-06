@@ -174,7 +174,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                                   RouteNames.profile /*más adelante detalle*/,
                                 ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
                             ),
                             child: const Text('Select'),
                           ),

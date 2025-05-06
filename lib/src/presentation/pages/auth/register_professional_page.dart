@@ -1,14 +1,23 @@
 // lib/src/presentation/pages/auth/register_professional_page.dart
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+
 import '../../../core/routes/route_names.dart';
 
 class RegisterProfessionalPage extends StatefulWidget {
   final int userId;
-  const RegisterProfessionalPage({Key? key, required this.userId})
-    : super(key: key);
+  final String email;
+  final String password;
+
+  const RegisterProfessionalPage({
+    Key? key,
+    required this.userId,
+    required this.email,
+    required this.password,
+  }) : super(key: key);
+
   @override
   _RegisterProfessionalPageState createState() =>
       _RegisterProfessionalPageState();
@@ -20,6 +29,7 @@ class _RegisterProfessionalPageState extends State<RegisterProfessionalPage> {
   final _expCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
   final _cityCtrl = TextEditingController();
+
   bool _isLoading = false;
 
   Future<void> _submitProf() async {
@@ -37,17 +47,31 @@ class _RegisterProfessionalPageState extends State<RegisterProfessionalPage> {
         'ciudad': _cityCtrl.text.trim(),
       }),
     );
+
     final data = jsonDecode(res.body);
-    if (res.statusCode == 200 && data['success'] == true) {
+    final ok = res.statusCode == 200 && data['success'] == true;
+
+    if (ok) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Profesional registrado')));
-      context.go(RouteNames.login);
+
+      // ——→ Paso 3: foto (con credenciales para login automático)
+      context.go(
+        RouteNames.registerPhoto,
+        extra: {
+          'userId': widget.userId,
+          'isProfessional': true,
+          'email': widget.email,
+          'password': widget.password,
+        },
+      );
     } else {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(data['message'] ?? 'Error')));
     }
+
     setState(() => _isLoading = false);
   }
 
@@ -100,7 +124,7 @@ class _RegisterProfessionalPageState extends State<RegisterProfessionalPage> {
                   child:
                       _isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Finalizar Registro'),
+                          : const Text('Finalizar registro'),
                 ),
               ),
             ],
