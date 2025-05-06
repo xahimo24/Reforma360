@@ -28,6 +28,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         RouteNames.login,
         RouteNames.register,
         RouteNames.recoverPassword,
+        RouteNames.registerPhoto,
+        RouteNames.registerProfessional,
       };
       if (user == null && !authRoutes.contains(loc)) return RouteNames.login;
       if (user != null && authRoutes.contains(loc)) return RouteNames.home;
@@ -52,8 +54,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.registerProfessional,
         builder: (ctx, state) {
-          final userId = state.extra as int;
-          return RegisterProfessionalPage(userId: userId);
+          final args = state.extra! as Map<String, dynamic>;
+          return RegisterProfessionalPage(
+            userId: args['userId'] as int,
+          );
         },
       ),
       GoRoute(

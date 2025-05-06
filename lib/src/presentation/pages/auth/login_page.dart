@@ -151,7 +151,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     },
                     child: const Text(
                       '¿Olvidaste tu contraseña?',
-                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ),
@@ -164,8 +163,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Colors.black, // Forzar color en modo oscuro
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child:
@@ -180,7 +177,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             )
                             : const Text(
                               'Iniciar sesión',
-                              style: TextStyle(color: Colors.white),
                             ),
                   ),
                 ),

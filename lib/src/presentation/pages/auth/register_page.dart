@@ -67,7 +67,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       password: _passwordController.text,
       telefon: _telefonController.text.trim(),
       tipus: _isProfessional,
-      foto: 'default.jpg', // Será reemplazado en el siguiente paso
+      foto: '/assets/images/user.jpg', // Será reemplazado en el siguiente paso
     );
 
     try {
@@ -81,7 +81,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
       // 5) Navegar al paso de selección de foto
       context.go(
-        RouteNames.registerPhoto,
+        _isProfessional
+            ? RouteNames.registerProfessional
+            : RouteNames.registerPhoto,
         extra: {'userId': userId, 'isProfessional': _isProfessional},
       );
     } catch (e) {
@@ -229,12 +231,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   child: ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: const Text(
                       'Regístrate',
-                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

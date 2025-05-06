@@ -76,7 +76,7 @@ class _RegisterPhotoPageState extends State<RegisterPhotoPage> {
             else
               const CircleAvatar(
                 radius: 60,
-                backgroundImage: AssetImage('assets/images/default_user.png'),
+                backgroundImage: AssetImage('assets/images/user.jpg') as ImageProvider,
               ),
             const SizedBox(height: 24),
             Row(
