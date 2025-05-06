@@ -9,6 +9,7 @@ import '../../providers/professionals/professionals_provider.dart';
 import '../../data/models/professional_model.dart';
 import '../../widgets/shared/bottom_navigator.dart';
 import '../../providers/auth/auth_provider.dart';
+import 'processing_page.dart';
 
 /// Pantalla para buscar y listar profesionales
 class ProfessionalsPage extends ConsumerStatefulWidget {
@@ -169,10 +170,13 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: ElevatedButton(
-                            onPressed:
-                                () => context.go(
-                                  RouteNames.profile /*más adelante detalle*/,
-                                ),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProcessingPage(professionalName: p.userName),
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black,
                             ),
