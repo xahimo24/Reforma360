@@ -32,27 +32,47 @@ class _ProcessingPageState extends State<ProcessingPage> {
     _loadTasks(widget.categoria);
   }
 
-  Future<void> _loadTasks(String categoria) async {
+Future<void> _loadTasks(String categoria) async {
+  print('🔍 Cargando tareas para categoría: $categoria');
+
+  try {
     final response = await http.post(
       Uri.parse('http://10.100.0.12/reforma360_api/get_task_by_category.php'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'categoria': categoria}),
     );
 
+    print('📡 Status: ${response.statusCode}');
+    print('📦 Body: ${response.body}');
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      if (data['success']) {
+
+      if (data['success'] == true && data['tareas'] is List) {
+        final tareas = data['tareas'] as List;
+        final parsed = tareas.map<Map<String, String>>((t) {
+          return {
+            'nom': t['nom']?.toString() ?? '',
+            'descripcio': t['descripcio']?.toString() ?? '',
+          };
+        }).toList();
+
         setState(() {
-          availableTasks = List<Map<String, String>>.from(
-            data['tareas'].map((t) => {
-              'nom': t['nom'],
-              'descripcio': t['descripcio'],
-            }),
-          );
+          availableTasks = parsed;
         });
+
+        print('✅ Tareas cargadas: ${availableTasks.length}');
+      } else {
+        print('⚠️ Respuesta inválida o sin tareas.');
       }
+    } else {
+      print('❌ Error de red al cargar tareas.');
     }
+  } catch (e) {
+    print('❌ Excepción al cargar tareas: $e');
   }
+}
+
 
   Future<void> _validatePromo(String promo) async {
     final response = await http.post(
