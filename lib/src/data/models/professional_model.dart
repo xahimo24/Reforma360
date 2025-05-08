@@ -33,7 +33,7 @@ class ProfessionalModel {
       userId: int.parse(json['id_usuari'].toString()),
       userName: json['user_name'] ?? '',
       userAvatar: json['user_avatar'] ?? '',
-      category: json['categoria'] ?? '',
+      category: json['id_categoria'] ?? '',
       experience: int.parse(json['experiencia'].toString()),
       description: json['descripcion'] ?? '',
       city: json['ciudad'] ?? '',

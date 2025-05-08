@@ -173,12 +173,13 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    ProcessingPage(professionalName: p.userName),
+                                builder: (context) => ProcessingPage(
+                                  professionalName: p.userName,
+                                  categoria: p.category, // Se pasa el campo `category` del modelo
+                                ),
                               ),
                             ),
-                            style: ElevatedButton.styleFrom(
-                            ),
+                            style: ElevatedButton.styleFrom(),
                             child: const Text('Select'),
                           ),
                         ),
