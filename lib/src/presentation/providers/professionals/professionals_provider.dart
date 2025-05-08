@@ -3,7 +3,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import '../../../data/models/professional_model.dart';
+import 'package:reforma360/src/data/models/professional_model.dart';
 
 /// Provider que carga la lista de profesionales desde la API.
 ///

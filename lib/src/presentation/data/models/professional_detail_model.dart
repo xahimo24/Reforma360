@@ -1,6 +1,6 @@
 // lib/src/presentation/data/models/professional_model.dart
 
-class ProfessionalModel {
+class ProfessionalDetailModel {
   final int id;
   final String nom;
   final String cognoms;
@@ -33,7 +33,7 @@ class ProfessionalModel {
   final List<String> permisos;
   final List<String> altres;
 
-  ProfessionalModel({
+  ProfessionalDetailModel({
     required this.id,
     required this.nom,
     required this.cognoms,
@@ -67,8 +67,8 @@ class ProfessionalModel {
     required this.altres,
   });
 
-  factory ProfessionalModel.fromJson(Map<String, dynamic> json) {
-    return ProfessionalModel(
+  factory ProfessionalDetailModel.fromJson(Map<String, dynamic> json) {
+    return ProfessionalDetailModel(
       id: json['id'] as int,
       nom: json['nom'] as String,
       cognoms: json['cognoms'] as String,

@@ -5,7 +5,8 @@ import 'package:flutter/material.dart'; // Llibreria principal de Flutter.
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Gestió de l'estat amb Riverpod.
 import 'package:go_router/go_router.dart'; // Navegació amb GoRouter.
 import 'package:shared_preferences/shared_preferences.dart'; // Per gestionar preferències locals.
-import 'package:timeago/timeago.dart' as timeago; // Llibreria per mostrar dates relatives.
+import 'package:timeago/timeago.dart'
+    as timeago; // Llibreria per mostrar dates relatives.
 import 'package:http/http.dart' as http; // Llibreria per fer peticions HTTP.
 
 import '../../providers/auth/auth_provider.dart'; // Proveïdor d'autenticació.
@@ -29,7 +30,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   // Funció per tancar sessió: neteja l'estat i redirigeix al login.
   Future<void> _logout() async {
-    ref.read(userProvider.notifier).state = null; // Esborra l'usuari del proveïdor.
+    ref.read(userProvider.notifier).state =
+        null; // Esborra l'usuari del proveïdor.
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // Esborra les preferències locals.
     context.go(RouteNames.login); // Redirigeix a la pàgina de login.
@@ -40,31 +42,37 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final url = Uri.parse(
       'http://10.100.0.12/reforma360_api/delete_publication.php', // Endpoint per eliminar publicacions.
     );
-    final response = await http.post(url, body: {'id': id.toString()}); // Envia la petició amb l'ID de la publicació.
+    final response = await http.post(
+      url,
+      body: {'id': id.toString()},
+    ); // Envia la petició amb l'ID de la publicació.
     return response.statusCode == 200 &&
-        response.body.contains('"success":true'); // Retorna true si l'eliminació és exitosa.
+        response.body.contains(
+          '"success":true',
+        ); // Retorna true si l'eliminació és exitosa.
   }
 
   // Mostra un diàleg de confirmació i elimina la publicació si l'usuari accepta.
   Future<void> _confirmDelete(int pubId) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Eliminar publicació'),
-        content: const Text(
-          'Segur que vols eliminar aquesta publicació?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false), // Cancel·la l'acció.
-            child: const Text('Cancel·lar'),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Eliminar publicació'),
+            content: const Text('Segur que vols eliminar aquesta publicació?'),
+            actions: [
+              TextButton(
+                onPressed:
+                    () => Navigator.pop(context, false), // Cancel·la l'acció.
+                child: const Text('Cancel·lar'),
+              ),
+              TextButton(
+                onPressed:
+                    () => Navigator.pop(context, true), // Confirma l'acció.
+                child: const Text('Eliminar'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true), // Confirma l'acció.
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
     );
 
     if (confirm == true) {
@@ -72,9 +80,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       if (success) {
         // Refresca el llistat de publicacions.
         ref.refresh(userPublicationsProvider(ref.read(userProvider)!.id));
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Publicació eliminada')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Publicació eliminada')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error en eliminar la publicació')),
@@ -92,13 +100,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.go(RouteNames.login); // Redirigeix al login.
       });
-      return const Scaffold(body: SizedBox.shrink()); // Retorna un Scaffold buit.
+      return const Scaffold(
+        body: SizedBox.shrink(),
+      ); // Retorna un Scaffold buit.
     }
 
     // URL completa de l'avatar de l'usuari.
-    final avatarUrl = user.foto.startsWith('http')
-        ? user.foto
-        : 'http://10.100.0.12/reforma360_api/${user.foto}';
+    final avatarUrl =
+        user.foto.startsWith('http')
+            ? user.foto
+            : 'http://10.100.0.12/reforma360_api/${user.foto}';
 
     // Carrega les publicacions de l'usuari.
     final postsAsync = ref.watch(userPublicationsProvider(user.id));
@@ -108,7 +119,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go(RouteNames.home), // Torna a la pàgina principal.
+          onPressed:
+              () => context.go(RouteNames.home), // Torna a la pàgina principal.
         ),
         title: Text(user.nom), // Mostra el nom de l'usuari.
         centerTitle: true,
@@ -118,22 +130,32 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             onPressed: () async {
               final confirm = await showDialog<bool>(
                 context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Tancar sessió'),
-                  content: const Text('Segur que vols tancar la sessió?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false), // Cancel·la l'acció.
-                      child: const Text('Cancel·lar'),
+                builder:
+                    (_) => AlertDialog(
+                      title: const Text('Tancar sessió'),
+                      content: const Text('Segur que vols tancar la sessió?'),
+                      actions: [
+                        TextButton(
+                          onPressed:
+                              () => Navigator.pop(
+                                context,
+                                false,
+                              ), // Cancel·la l'acció.
+                          child: const Text('Cancel·lar'),
+                        ),
+                        TextButton(
+                          onPressed:
+                              () => Navigator.pop(
+                                context,
+                                true,
+                              ), // Confirma l'acció.
+                          child: const Text('Sortir'),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true), // Confirma l'acció.
-                      child: const Text('Sortir'),
-                    ),
-                  ],
-                ),
               );
-              if (confirm == true) await _logout(); // Tanca la sessió si es confirma.
+              if (confirm == true)
+                await _logout(); // Tanca la sessió si es confirma.
             },
           ),
         ],
@@ -144,7 +166,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         data: (posts) {
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            itemCount: 1 + posts.length, // Primer element = perfil, després publicacions.
+            itemCount:
+                1 +
+                posts.length, // Primer element = perfil, després publicacions.
             itemBuilder: (context, idx) {
               // ───── Secció perfil ─────
               if (idx == 0) {
@@ -153,7 +177,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   children: [
                     Center(
                       child: CircleAvatar(
-                        backgroundImage: NetworkImage(avatarUrl), // Mostra l'avatar de l'usuari.
+                        backgroundImage: NetworkImage(
+                          avatarUrl,
+                        ), // Mostra l'avatar de l'usuari.
                         radius: 60,
                       ),
                     ),
@@ -181,7 +207,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                     ),
                     Text(
-                      user.bio ?? 'Usuari de Reforma 360', // Mostra la biografia o un text per defecte.
+                      user.bio ??
+                          'Usuari de Reforma 360', // Mostra la biografia o un text per defecte.
                       style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 24),
@@ -191,10 +218,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        onPressed: () => context.push(RouteNames.editProfile), // Navega a la pàgina d'edició de perfil.
-                        child: const Text(
-                          'Editar perfil',
-                        ),
+                        onPressed:
+                            () => context.push(
+                              RouteNames.editProfile,
+                            ), // Navega a la pàgina d'edició de perfil.
+                        child: const Text('Editar perfil'),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -236,7 +264,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 ),
                               ),
                               Text(
-                                timeago.format(pub.dataPublicacio), // Mostra la data relativa.
+                                timeago.format(
+                                  pub.dataPublicacio,
+                                ), // Mostra la data relativa.
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 12,
@@ -248,14 +278,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           // Menú de 3 punts: Eliminar publicació.
                           PopupMenuButton<String>(
                             onSelected: (v) {
-                              if (v == 'delete') _confirmDelete(pub.id); // Elimina la publicació si es selecciona.
+                              if (v == 'delete')
+                                _confirmDelete(
+                                  pub.id,
+                                ); // Elimina la publicació si es selecciona.
                             },
-                            itemBuilder: (_) => const [
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Eliminar publicació'),
-                              ),
-                            ],
+                            itemBuilder:
+                                (_) => const [
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text('Eliminar publicació'),
+                                  ),
+                                ],
                             child: const Icon(Icons.more_horiz),
                           ),
                         ],
@@ -269,8 +303,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: 200,
-                          errorBuilder: (_, __, ___) =>
-                              const Text('Imatge no disponible'), // Mostra un missatge si la imatge no es carrega.
+                          errorBuilder:
+                              (_, __, ___) => const Text(
+                                'Imatge no disponible',
+                              ), // Mostra un missatge si la imatge no es carrega.
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -283,8 +319,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()), // Mostra un indicador de càrrega.
-        error: (e, _) => Center(child: Text('Error en carregar publicacions: $e')), // Mostra un error si falla.
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(),
+            ), // Mostra un indicador de càrrega.
+        error:
+            (e, _) => Center(
+              child: Text('Error en carregar publicacions: $e'),
+            ), // Mostra un error si falla.
       ),
 
       // ───── NAVEGACIÓ INFERIOR ─────

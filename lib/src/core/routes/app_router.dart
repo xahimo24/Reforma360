@@ -18,6 +18,7 @@ import 'package:reforma360/src/presentation/pages/post/new_post_page.dart';
 import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
 import 'package:reforma360/src/presentation/pages/professionals/professionals_page.dart';
 
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: RouteNames.login,
