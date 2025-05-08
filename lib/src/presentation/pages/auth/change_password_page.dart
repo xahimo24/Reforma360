@@ -53,7 +53,6 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Contraseña cambiada correctamente')),
         );
-        // Espera al próximo frame para navegar
         SchedulerBinding.instance.addPostFrameCallback(
           (_) => context.go(RouteNames.profile),
         );
@@ -76,14 +75,17 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Email a usar: parámetro o del userProvider
     final email = widget.email ?? ref.read(userProvider)?.email;
     if (email == null || email.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No se pudo determinar tu correo')),
         );
-        context.pop();
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(RouteNames.home);
+        }
       });
       return const Scaffold(body: SizedBox.shrink());
     }
@@ -91,7 +93,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cambiar Contraseña'),
-        automaticallyImplyLeading: true, // flecha “back” del sistema
+        automaticallyImplyLeading: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -106,7 +108,6 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
               ),
               const SizedBox(height: 16),
 
-              // --- Nueva contraseña ---
               TextFormField(
                 controller: _newPassCtrl,
                 decoration: const InputDecoration(
@@ -124,7 +125,6 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
               ),
               const SizedBox(height: 16),
 
-              // --- Repetir contraseña ---
               TextFormField(
                 controller: _repeatCtrl,
                 decoration: const InputDecoration(
@@ -144,13 +144,20 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
               ),
               const SizedBox(height: 24),
 
-              // --- Botones ---
               Row(
                 children: [
-                  // Botón cancelar  (mismo color que resto de la app → texto negro)
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _loading ? null : context.pop,
+                      onPressed:
+                          _loading
+                              ? null
+                              : () {
+                                if (context.canPop()) {
+                                  context.pop();
+                                } else {
+                                  context.go(RouteNames.editProfile);
+                                }
+                              },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
                         side: const BorderSide(color: Colors.black),
@@ -159,7 +166,6 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Botón confirmar  (fondo negro como en otras pantallas)
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _loading ? null : () => _changePassword(email),

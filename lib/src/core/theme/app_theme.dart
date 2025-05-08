@@ -39,15 +39,40 @@ class AppTheme {
     ),
 
     // ---------- AppBar ----------
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.white,
-      elevation: 0,
-      titleTextStyle: TextStyle(color: Colors.black, fontSize: 20),
-      iconTheme: IconThemeData(color: Colors.black),
+      surfaceTintColor: Colors.white, // mantiene el fondo blanco sin tinte
+      elevation: 2, // añade sombra ligera
+      shadowColor: Colors.grey, // color de la sombra
+      shape: Border(
+        // borde inferior
+        bottom: BorderSide(color: Colors.grey.shade300, width: 1),
+      ),
+      titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
+      iconTheme: const IconThemeData(color: Colors.black),
     ),
 
     // ---------- Iconos ----------
     iconTheme: const IconThemeData(color: Colors.black),
+
+    // ---------- Cursor y selección en TextField ----------
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: Colors.white,
+      selectionColor: Colors.white24,
+      selectionHandleColor: Colors.white,
+    ),
+
+    // ---------- Campos de texto ----------
+    inputDecorationTheme: const InputDecorationTheme(
+      labelStyle: TextStyle(color: Colors.black),
+      hintStyle: TextStyle(color: Colors.grey),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 2),
+      ),
+    ),
 
     // ---------- Botones ----------
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -64,18 +89,6 @@ class AppTheme {
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.black,
       foregroundColor: Colors.white,
-    ),
-
-    // ---------- Campos de texto ----------
-    inputDecorationTheme: const InputDecorationTheme(
-      labelStyle: TextStyle(color: Colors.black),
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.black, width: 2),
-      ),
-      hintStyle: TextStyle(color: Colors.grey),
     ),
 
     // ---------- Barras inferiores ----------
@@ -153,12 +166,31 @@ class AppTheme {
 
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.black,
+      surfaceTintColor: Colors.black, // mantiene el fondo blanco sin tinte
       elevation: 0,
       titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
       iconTheme: IconThemeData(color: Colors.white),
     ),
 
     iconTheme: const IconThemeData(color: Colors.white),
+
+    // ---------- Cursor y selección en TextField ----------
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: Colors.white,
+      selectionColor: Colors.white24,
+      selectionHandleColor: Colors.white,
+    ),
+
+    inputDecorationTheme: const InputDecorationTheme(
+      labelStyle: TextStyle(color: Colors.white),
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.white, width: 2),
+      ),
+      hintStyle: TextStyle(color: Colors.grey),
+    ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -174,17 +206,6 @@ class AppTheme {
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Colors.white,
       foregroundColor: Colors.black,
-    ),
-
-    inputDecorationTheme: const InputDecorationTheme(
-      labelStyle: TextStyle(color: Colors.white),
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.white),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 2),
-      ),
-      hintStyle: TextStyle(color: Colors.grey),
     ),
 
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
