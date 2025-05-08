@@ -2,14 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/routes/route_names.dart';
-import '../../providers/professionals/professionals_provider.dart';
-import '../../data/models/professional_detail_model.dart';
-import '../../widgets/shared/bottom_navigator.dart';
-import '../../providers/auth/auth_provider.dart';
-import 'package:reforma360/src/presentation/pages/professionals/processing_page.dart';
-// 👇 1. IMPORT — usa SIEMPRE la ruta package: para evitar el error /*1*/ vs /*2*/
+import 'package:reforma360/src/core/routes/route_names.dart';
+import 'package:reforma360/src/presentation/providers/professionals/professionals_provider.dart';
 import 'package:reforma360/src/data/models/professional_model.dart';
+import 'package:reforma360/src/widgets/shared/bottom_navigator.dart';
+import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
+import 'package:reforma360/src/presentation/pages/professionals/processing_page.dart';
 
 /// Pantalla para buscar y listar profesionales
 class ProfessionalsPage extends ConsumerStatefulWidget {
@@ -30,9 +28,9 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
     final user = ref.watch(userProvider);
     final avatarUrl =
         user != null
-            ? user.foto.startsWith('http')
+            ? (user.foto.startsWith('http')
                 ? user.foto
-                : 'http://10.100.0.12/reforma360_api/${user.foto}'
+                : 'http://10.100.0.12/reforma360_api/${user.foto}')
             : null;
 
     return Scaffold(
@@ -50,7 +48,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
 
       body: Column(
         children: [
-          // Filtros:
+          // ── Filtros ────────────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -86,16 +84,19 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
             ),
           ),
 
-          // Lista:
+          // ── Lista ──────────────────────────────────────────────────────────────
           Expanded(
             child: profsAsync.when(
               data: (list) {
                 final term = _searchTerm.toLowerCase();
                 final filtered =
-                    list.where((p) {
-                      return p.userName.toLowerCase().contains(term) ||
-                          p.category.toLowerCase().contains(term);
-                    }).toList();
+                    list
+                        .where(
+                          (p) =>
+                              p.userName.toLowerCase().contains(term) ||
+                              p.category.toLowerCase().contains(term),
+                        )
+                        .toList();
 
                 if (_sortOption == 'Experience') {
                   filtered.sort((a, b) => b.experience.compareTo(a.experience));
@@ -114,7 +115,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Imagen clicable para abrir modal de detalle:
+                        // Imagen clicable
                         InkWell(
                           onTap: () => _showDetailModal(context, p),
                           child: ClipRRect(
@@ -157,8 +158,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                                 ],
                               ),
                             ),
-
-                            // Rating / reviews / ciudad
                             Row(
                               children: [
                                 const Icon(
@@ -187,18 +186,22 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Botón Select (sin tocar)
+                        // Botón Select
                         Align(
                           alignment: Alignment.centerLeft,
                           child: ElevatedButton(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ProcessingPage(professionalName: p.userName),
-                              ),
-                            ),
+                            onPressed:
+                                () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => ProcessingPage(
+                                          professionalName: p.userName,
+                                        ),
+                                  ),
+                                ),
                             style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
                             ),
                             child: const Text('Select'),
                           ),
@@ -224,7 +227,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
     );
   }
 
-  /// Muestra un modal con TODOS los datos del profesional
+  /// Modal con TODOS los datos del profesional
   void _showDetailModal(BuildContext context, ProfessionalModel p) {
     showModalBottomSheet(
       context: context,
@@ -232,11 +235,9 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      // 🆕 2. Envuelve el contenido en SingleChildScrollView para evitar overflow
       builder:
           (_) => SingleChildScrollView(
             padding: EdgeInsets.only(
-              // respeta el teclado si aparece
               bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               top: 24,
               left: 16,
@@ -246,7 +247,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Arrastrador
                 Center(
                   child: Container(
                     width: 40,
@@ -258,8 +258,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                     ),
                   ),
                 ),
-
-                // Cabecera
                 Text(
                   p.userName,
                   style: const TextStyle(
@@ -274,11 +272,9 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Imagen grande
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
-                    // Si la API ya devuelve URL absoluta, quita el prefijo
                     p.userAvatar.startsWith('http')
                         ? p.userAvatar
                         : 'http://10.100.0.12/reforma360_api/${p.userAvatar}',
@@ -292,11 +288,9 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Descripción
                 Text(p.description, style: const TextStyle(fontSize: 14)),
                 const SizedBox(height: 12),
 
-                // Otros datos
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -313,7 +307,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                 Text('Ciudad: ${p.city}'),
                 const SizedBox(height: 24),
 
-                // Botón cerrar
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

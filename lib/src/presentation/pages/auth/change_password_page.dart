@@ -1,12 +1,12 @@
 // ---------------------------------------------------------------------------
-// Cambiar contraseña → tras éxito navega al perfil
+// Cambiar contraseña  →  tras éxito navega al perfil
 // ---------------------------------------------------------------------------
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/scheduler.dart'; // Para addPostFrameCallback
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
@@ -50,16 +50,16 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
       if (!mounted) return;
 
       if (res.statusCode == 200) {
-        // Mensaje éxito
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Contraseña cambiada correctamente')),
         );
-        // En el próximo frame, ir al perfil
+        // Espera al próximo frame para navegar
         SchedulerBinding.instance.addPostFrameCallback(
           (_) => context.go(RouteNames.profile),
         );
       } else {
-        final msg = jsonDecode(res.body)['message'] ?? 'Error desconocido';
+        final msg =
+            (jsonDecode(res.body)['message'] ?? 'Error desconocido').toString();
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $msg')));
@@ -76,7 +76,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Email: parámetro o userProvider
+    // Email a usar: parámetro o del userProvider
     final email = widget.email ?? ref.read(userProvider)?.email;
     if (email == null || email.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -89,8 +89,11 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cambiar Contraseña')),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('Cambiar Contraseña'),
+        automaticallyImplyLeading: true, // flecha “back” del sistema
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
@@ -102,6 +105,8 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
+
+              // --- Nueva contraseña ---
               TextFormField(
                 controller: _newPassCtrl,
                 decoration: const InputDecoration(
@@ -110,13 +115,16 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                 ),
                 obscureText: true,
                 validator: (v) {
-                  if (v == null || v.isEmpty)
+                  if (v == null || v.isEmpty) {
                     return 'Introduce tu nueva contraseña.';
+                  }
                   if (v.length < 6) return 'Mínimo 6 caracteres.';
                   return null;
                 },
               ),
               const SizedBox(height: 16),
+
+              // --- Repetir contraseña ---
               TextFormField(
                 controller: _repeatCtrl,
                 decoration: const InputDecoration(
@@ -125,26 +133,53 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                 ),
                 obscureText: true,
                 validator: (v) {
-                  if (v == null || v.isEmpty)
+                  if (v == null || v.isEmpty) {
                     return 'Repite tu nueva contraseña.';
-                  if (v != _newPassCtrl.text)
+                  }
+                  if (v != _newPassCtrl.text) {
                     return 'Las contraseñas no coinciden.';
+                  }
                   return null;
                 },
               ),
-              const SizedBox(height: 22),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _loading ? null : () => _changePassword(email),
-                  child:
-                      _loading
-                          ? const CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          )
-                          : const Text('Cambiar Contraseña'),
-                ),
+              const SizedBox(height: 24),
+
+              // --- Botones ---
+              Row(
+                children: [
+                  // Botón cancelar  (mismo color que resto de la app → texto negro)
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _loading ? null : context.pop,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(color: Colors.black),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Botón confirmar  (fondo negro como en otras pantallas)
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _loading ? null : () => _changePassword(email),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                      ),
+                      child:
+                          _loading
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Text('Cambiar Contraseña'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
