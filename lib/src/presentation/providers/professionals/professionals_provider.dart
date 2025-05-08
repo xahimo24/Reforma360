@@ -9,6 +9,23 @@ import 'package:reforma360/src/data/models/professional_model.dart';
 ///
 /// - [family] permite pasar una ciudad para filtrar (cadena vacía = todas).
 /// - Devuelve una lista de [ProfessionalModel].
+///
+/// Notas sobre JSON:
+/// La API debe devolver para cada profesional:
+/// {
+///   "id": int,
+///   "id_usuari": int,
+///   "user_name": string,
+///   "user_avatar": string,
+///   "category_id": int|null,
+///   "category_name": string|null,
+///   "experiencia": int,
+///   "descripcio": string,
+///   "ciudad": string,
+///   "avg_rating": double,
+///   "reviews_count": int
+/// }
+
 final professionalsProvider = FutureProvider.family<
   List<ProfessionalModel>,
   String
@@ -31,7 +48,7 @@ final professionalsProvider = FutureProvider.family<
     throw Exception('API error: ${body['message']}');
   }
 
-  // 4) Convertir cada item al modelo
+  // 4) Convertir cada item al modelo, pasando category_id y category_name
   final items =
       (body['professionals'] as List<dynamic>)
           .map(

@@ -1,4 +1,4 @@
-// lib/src/presentation/pages/professionals/professionals_page.dart
+// File: lib/src/presentation/pages/professionals/professionals_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -89,15 +89,14 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
             child: profsAsync.when(
               data: (list) {
                 final term = _searchTerm.toLowerCase();
+                // Filtrar por nombre o categoría
                 final filtered =
-                    list
-                        .where(
-                          (p) =>
-                              p.userName.toLowerCase().contains(term) ||
-                              p.category.toLowerCase().contains(term),
-                        )
-                        .toList();
+                    list.where((p) {
+                      return p.userName.toLowerCase().contains(term) ||
+                          p.categoryName.toLowerCase().contains(term);
+                    }).toList();
 
+                // Ordenar
                 if (_sortOption == 'Experience') {
                   filtered.sort((a, b) => b.experience.compareTo(a.experience));
                 } else {
@@ -149,7 +148,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    p.category,
+                                    p.categoryName,
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey[600],
@@ -197,7 +196,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                                     builder:
                                         (_) => ProcessingPage(
                                           professionalName: p.userName,
-                                          categoria: p.category,
+                                          categoria: p.categoryName,
                                         ),
                                   ),
                                 ),
@@ -268,7 +267,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  p.category,
+                  p.categoryName,
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 16),
