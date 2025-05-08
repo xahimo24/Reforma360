@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reforma360/src/core/routes/route_names.dart';
 import 'package:reforma360/src/presentation/providers/professionals/professionals_provider.dart';
 import 'package:reforma360/src/data/models/professional_model.dart';
-import 'package:reforma360/src/widgets/shared/bottom_navigator.dart';
+import 'package:reforma360/src/presentation/widgets/shared/bottom_navigator.dart';
 import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
 import 'package:reforma360/src/presentation/pages/professionals/processing_page.dart';
 
@@ -197,6 +197,7 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                                     builder:
                                         (_) => ProcessingPage(
                                           professionalName: p.userName,
+                                          categoria: p.category,
                                         ),
                                   ),
                                 ),
