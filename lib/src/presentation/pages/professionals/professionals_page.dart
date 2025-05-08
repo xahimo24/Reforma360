@@ -191,18 +191,14 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: ElevatedButton(
-                            onPressed:
-                                () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => ProcessingPage(
-                                          professionalName: p.userName,
-                                        ),
-                                  ),
-                                ),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProcessingPage(professionalName: p.userName),
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
                             ),
                             child: const Text('Select'),
                           ),
