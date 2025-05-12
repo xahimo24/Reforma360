@@ -1,15 +1,23 @@
+// file: lib/pages/processing_page.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:reforma360/src/services/message_service.dart';
 
 class ProcessingPage extends StatefulWidget {
+  final String professionalId;
   final String professionalName;
   final String categoria;
+  final String userId;
+  final String userName;
 
   const ProcessingPage({
     Key? key,
+    required this.professionalId,
     required this.professionalName,
     required this.categoria,
+    required this.userId,
+    required this.userName,
   }) : super(key: key);
 
   @override
@@ -32,71 +40,55 @@ class _ProcessingPageState extends State<ProcessingPage> {
     _loadTasks(widget.categoria);
   }
 
-Future<void> _loadTasks(String categoria) async {
-  print('🔍 Cargando tareas para categoría: $categoria');
-
-  try {
-    final response = await http.post(
-      Uri.parse('http://10.100.0.12/reforma360_api/get_task_by_category.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'categoria': categoria}),
-    );
-
-    print('📡 Status: ${response.statusCode}');
-    print('📦 Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['success'] == true && data['tareas'] is List) {
-        final tareas = data['tareas'] as List;
-        final parsed = tareas.map<Map<String, String>>((t) {
-          return {
-            'nom': t['nom']?.toString() ?? '',
-            'descripcio': t['descripcio']?.toString() ?? '',
-          };
-        }).toList();
-
-        setState(() {
-          availableTasks = parsed;
-        });
-
-        print('✅ Tareas cargadas: ${availableTasks.length}');
-      } else {
-        print('⚠️ Respuesta inválida o sin tareas.');
+  Future<void> _loadTasks(String categoria) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.100.0.12/reforma360_api/get_task_by_category.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'categoria': categoria}),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['tareas'] is List) {
+          final List tareas = data['tareas'];
+          setState(() {
+            availableTasks = tareas.map<Map<String, String>>((t) {
+              return {
+                'nom': t['nom']?.toString() ?? '',
+                'descripcio': t['descripcio']?.toString() ?? '',
+              };
+            }).toList();
+          });
+        }
       }
-    } else {
-      print('❌ Error de red al cargar tareas.');
+    } catch (e) {
+      debugPrint('Error cargando tareas: $e');
     }
-  } catch (e) {
-    print('❌ Excepción al cargar tareas: $e');
   }
-}
-
 
   Future<void> _validatePromo(String promo) async {
-    final response = await http.post(
-      Uri.parse('http://10.100.0.12/reforma360_api/check_promo.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'promo': promo}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        promoCode = promo;
-        promoValid = data['success'] == true;
-      });
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.100.0.12/reforma360_api/check_promo.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'promo': promo}),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          promoCode = promo;
+          promoValid = data['success'] == true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error validando promo: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 1,
         centerTitle: true,
         title: Text('Tramitación con ${widget.professionalName}'),
@@ -135,28 +127,26 @@ Future<void> _loadTasks(String categoria) async {
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
                   child: Text('ELEMENTOS', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
-                ...availableTasks.map(
-                  (task) => ListTile(
+                ...availableTasks.map((task) {
+                  final taskName = task['nom'] ?? '';
+                  return ListTile(
                     leading: Icon(
-                      selectedTasks.contains(task['nom'])
+                      selectedTasks.contains(taskName)
                           ? Icons.check_circle
                           : Icons.radio_button_unchecked,
-                      color: selectedTasks.contains(task['nom']) ? Colors.green : null,
+                      color: selectedTasks.contains(taskName) ? Colors.green : null,
                     ),
-                    title: Text(task['nom'] ?? ''),
+                    title: Text(taskName),
                     subtitle: Text(task['descripcio'] ?? ''),
-                    onTap: () {
-                      setState(() {
-                        final taskName = task['nom']!;
-                        if (selectedTasks.contains(taskName)) {
-                          selectedTasks.remove(taskName);
-                        } else {
-                          selectedTasks.add(taskName);
-                        }
-                      });
-                    },
-                  ),
-                ),
+                    onTap: () => setState(() {
+                      if (selectedTasks.contains(taskName)) {
+                        selectedTasks.remove(taskName);
+                      } else {
+                        selectedTasks.add(taskName);
+                      }
+                    }),
+                  );
+                }).toList(),
                 const SizedBox(height: 20),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -175,23 +165,38 @@ Future<void> _loadTasks(String categoria) async {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  print('Dirección: $address');
-                  print('Plazo de contacto: $contactDeadline');
-                  print('Método de pago: $paymentMethod');
-                  print('Promo: $promoCode (válido: $promoValid)');
-                  print('Tareas seleccionadas: $selectedTasks');
-                  // Aquí podrías llamar a un endpoint para guardar la solicitud.
+                onPressed: () async {
+                  final mensaje = StringBuffer()
+                    ..writeln('Hola ${widget.professionalName},')
+                    ..writeln('Soy ${widget.userName}, quisiera un presupuesto con estos datos:')
+                    ..writeln('- Dirección: $address')
+                    ..writeln('- Plazo: $contactDeadline')
+                    ..writeln('- Pago: $paymentMethod')
+                    ..writeln('- Promo: ${promoValid ? promoCode : '—'}')
+                    ..writeln('- Elementos: ${selectedTasks.join(', ')}');
+
+                  try {
+                    final convoId = await MessageService.sendQuoteRequest(
+                      fromUserId: widget.userId,
+                      toProfessionalId: widget.professionalId,
+                      subject: 'Solicitud de presupuesto',
+                      body: mensaje.toString(),
+                    );
+                    Navigator.pushNamed(context, '/chat', arguments: convoId);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al enviar la solicitud: $e')),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('PEDIR PRESUPUESTO', style: TextStyle(color: Colors.white)),
+                child: const Text('PEDIR PRESUPUESTO'),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -218,14 +223,13 @@ Future<void> _loadTasks(String categoria) async {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Aceptar'),
-          ),
+          ElevatedButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Aceptar')),
         ],
       ),
     );
-    if (result != null && result.length >= 5) setState(() => address = result);
+    if (result != null && result.length >= 5) {
+      setState(() => address = result);
+    }
   }
 
   Future<void> _showDeadlineSelector() async {

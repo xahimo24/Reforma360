@@ -57,7 +57,61 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                   value: _selectedCity.isEmpty ? null : _selectedCity,
                   hint: const Text('Filter'),
                   items:
-                      <String>['', 'Barcelona', 'Madrid', 'Valencia']
+                      <String>[
+                            '', // String vacío al inicio (como en tu ejemplo)
+                            'Álava', // Vitoria (oficialmente Vitoria-Gasteiz)
+                            'Albacete',
+                            'Alicante',
+                            'Almería',
+                            'Asturias', // Oviedo (aunque el nombre oficial es "Principado de Asturias")
+                            'Ávila',
+                            'Badajoz',
+                            'Barcelona',
+                            'Burgos',
+                            'Cáceres',
+                            'Cádiz',
+                            'Cantabria', // Santander (oficialmente "Cantabria", no es provincia pero su capital es Santander)
+                            'Castellón', // Castellón de la Plana
+                            'Ciudad Real',
+                            'Córdoba',
+                            'Cuenca',
+                            'Gerona', // Girona (en catalán)
+                            'Granada',
+                            'Guadalajara',
+                            'Guipúzcoa', // San Sebastián (oficialmente Donostia-San Sebastián)
+                            'Huelva',
+                            'Huesca',
+                            'Islas Baleares', // Palma de Mallorca
+                            'Jaén',
+                            'La Coruña', // A Coruña (nombre oficial en gallego)
+                            'La Rioja', // Logroño (oficialmente "La Rioja")
+                            'Las Palmas', // Las Palmas de Gran Canaria
+                            'León',
+                            'Lérida', // Lleida (en catalán)
+                            'Lugo',
+                            'Madrid',
+                            'Málaga',
+                            'Murcia',
+                            'Navarra', // Pamplona (oficialmente "Navarra" o "Comunidad Foral de Navarra")
+                            'Orense', // Ourense (en gallego)
+                            'Palencia',
+                            'Pontevedra',
+                            'Salamanca',
+                            'Santa Cruz de Tenerife',
+                            'Segovia',
+                            'Sevilla',
+                            'Soria',
+                            'Tarragona',
+                            'Teruel',
+                            'Toledo',
+                            'Valencia',
+                            'Valladolid',
+                            'Vizcaya', // Bilbao (oficialmente "Bizkaia")
+                            'Zamora',
+                            'Zaragoza',
+                            'Ceuta',
+                            'Melilla',
+                          ]
                           .map(
                             (c) => DropdownMenuItem(
                               value: c,
@@ -189,17 +243,23 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: ElevatedButton(
-                            onPressed:
-                                () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => ProcessingPage(
-                                          professionalName: p.userName,
-                                          categoria: p.categoryName,
-                                        ),
-                                  ),
+                            onPressed: () {
+                              final user = ref.read(userProvider);
+                              if (user == null) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => ProcessingPage(
+                                        professionalId: p.id.toString(),
+                                        professionalName: p.userName,
+                                        categoria: p.categoryName,
+                                        userId: user.id.toString(),
+                                        userName: '${user.nom} ${user.cognoms}',
+                                      ),
                                 ),
+                              );
+                            },
                             child: const Text('Select'),
                           ),
                         ),
