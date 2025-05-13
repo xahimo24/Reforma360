@@ -276,7 +276,6 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavigation(
         currentIndex: 1,
         userAvatarUrl: avatarUrl,

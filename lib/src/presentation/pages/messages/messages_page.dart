@@ -1,17 +1,20 @@
 // file: lib/pages/messages_page.dart
 import 'package:flutter/material.dart';
 import '../../../services/message_service.dart';
+import 'package:reforma360/src/presentation/widgets/shared/bottom_navigator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/auth/auth_provider.dart';
 
-class MessagesPage extends StatefulWidget {
+class MessagesPage extends ConsumerStatefulWidget {
   final String userId;
 
   const MessagesPage({Key? key, required this.userId}) : super(key: key);
 
   @override
-  State<MessagesPage> createState() => _MessagesPageState();
+  ConsumerState<MessagesPage> createState() => _MessagesPageState();
 }
 
-class _MessagesPageState extends State<MessagesPage> {
+class _MessagesPageState extends ConsumerState<MessagesPage> {
   late Future<List<Conversation>> _futureConversations;
 
   @override
@@ -24,6 +27,14 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(userProvider);
+    final avatarUrl =
+        user != null
+            ? user.foto.startsWith('http')
+                ? user.foto
+                : 'http://10.100.0.12/reforma360_api/${user.foto}'
+            : null;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mensajes'), centerTitle: true),
       body: FutureBuilder<List<Conversation>>(
@@ -62,6 +73,10 @@ class _MessagesPageState extends State<MessagesPage> {
             },
           );
         },
+      ),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: 1,
+        userAvatarUrl: avatarUrl,
       ),
     );
   }
