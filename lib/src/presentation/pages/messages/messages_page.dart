@@ -75,7 +75,7 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
         },
       ),
       bottomNavigationBar: BottomNavigation(
-        currentIndex: 1,
+        currentIndex: 3,
         userAvatarUrl: avatarUrl,
       ),
     );
