@@ -33,8 +33,7 @@ class BottomNavigation extends StatelessWidget {
         break;
       case 2:
         context.go(
-          RouteNames.notifications,
-        ); // Navega a la pàgina de notificacions
+          RouteNames.newPost); // Navega a la pàgina de nova publicació.
         break;
       case 3:
         context.go(RouteNames.messages); // Navega a la pàgina de missatges
@@ -58,8 +57,8 @@ class BottomNavigation extends StatelessWidget {
         label: 'Profesionales', // ← Etiqueta actualitzada
       ),
       const BottomNavigationBarItem(
-        icon: Icon(Icons.notifications), // Icona de notificacions
-        label: 'Notificaciones',
+        icon: Icon(Icons.add), // Icona de notificacions
+        label: 'New Post', // ← Etiqueta actualitzada
       ),
       const BottomNavigationBarItem(
         icon: Icon(Icons.message), // Icona de missatges

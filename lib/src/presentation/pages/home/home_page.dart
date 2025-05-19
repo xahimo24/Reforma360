@@ -25,10 +25,6 @@ class HomePage extends ConsumerWidget { // Defineix un widget que utilitza River
 
     return Scaffold( // Retorna un Scaffold, que és l'estructura bàsica d'una pàgina a Flutter.
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.add), // Icona per afegir una nova publicació.
-          onPressed: () => context.go(RouteNames.newPost), // Navega a la pàgina de nova publicació.
-        ),
         title: const Text('Reforma360'), // Títol de l'aplicació.
         centerTitle: true, // Centra el títol a la barra superior.
       ),

@@ -18,7 +18,6 @@ import 'package:reforma360/src/presentation/pages/auth/change_password_page.dart
 // Importaciones de las páginas principales de la aplicación
 import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/feed/feed_page.dart';
-import 'package:reforma360/src/presentation/pages/notification/notification_page.dart';
 import 'package:reforma360/src/presentation/pages/messages/messages_page.dart';
 import 'package:reforma360/src/presentation/pages/messages/chat_page.dart';
 import 'package:reforma360/src/presentation/pages/profile/profile_page.dart';
@@ -102,11 +101,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Rutas principales de la aplicación
       GoRoute(path: RouteNames.home, builder: (_, __) => const HomePage()),
       GoRoute(path: RouteNames.feed, builder: (_, __) => const FeedPage()),
-      GoRoute(
-        path: RouteNames.notifications,
-        builder: (_, __) => const NotificationPage(),
-      ),
-
       // Ruta de mensajes que requiere el ID del usuario actual
       GoRoute(
         path: RouteNames.messages,

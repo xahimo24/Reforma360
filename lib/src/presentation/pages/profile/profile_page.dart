@@ -13,6 +13,7 @@ import '../../providers/auth/auth_provider.dart'; // Proveïdor d'autenticació.
 import '../../providers/publicacions/user_publications_provider.dart'; // Proveïdor de publicacions de l'usuari.
 import '../../../core/routes/route_names.dart'; // Rutes de l'aplicació.
 import '../../widgets/shared/bottom_navigator.dart'; // Widget compartit per a la navegació inferior.
+import '../../providers/professionals/professionals_provider.dart'; // Añade este import
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WIDGET PRINCIPAL – Pàgina de perfil de l'usuari
@@ -211,6 +212,35 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           'Usuari de Reforma 360', // Mostra la biografia o un text per defecte.
                       style: const TextStyle(fontSize: 16),
                     ),
+                    if (user.tipus) ...[
+                      Consumer(
+                        builder: (context, ref, _) {
+                          final profsAsync = ref.watch(professionalsProvider(''));
+                          return profsAsync.when(
+                            data: (profs) {
+                              final profsList = profs.where((p) => p.userId == user.id).toList();
+                              if (profsList.isEmpty) {
+                                return const Text('No tienes perfil profesional.');
+                              }
+                              final prof = profsList.first;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Datos profesionales:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('Categoría: ${prof.categoryName}'),
+                                  Text('Experiencia: ${prof.experience} años'),
+                                  Text('Ciudad: ${prof.city}'),
+                                  Text('Descripción: ${prof.description}'),
+                                  const SizedBox(height: 24),
+                                ],
+                              );
+                            },
+                            loading: () => const CircularProgressIndicator(),
+                            error: (e, _) => Text('Error: $e'),
+                          );
+                        },
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,

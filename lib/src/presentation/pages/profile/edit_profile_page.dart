@@ -11,6 +11,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../data/models/auth/user_model.dart';
 import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
+import '../../providers/professionals/professionals_provider.dart'; // Añade este import
+import '../../providers/professionals/categories_provider.dart';
+import '../../../data/models/professional_model.dart'; // Añade este import
+
+final List<String> _ciudades = [
+  '', 'Álava', 'Albacete', 'Alicante', 'Almería', 'Asturias', 'Ávila', 'Badajoz', 'Barcelona',
+  'Burgos', 'Cáceres', 'Cádiz', 'Cantabria', 'Castellón', 'Ciudad Real', 'Córdoba', 'Cuenca',
+  'Gerona', 'Granada', 'Guadalajara', 'Guipúzcoa', 'Huelva', 'Huesca', 'Islas Baleares', 'Jaén',
+  'La Coruña', 'La Rioja', 'Las Palmas', 'León', 'Lérida', 'Lugo', 'Madrid', 'Málaga', 'Murcia',
+  'Navarra', 'Orense', 'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife', 'Segovia',
+  'Sevilla', 'Soria', 'Tarragona', 'Teruel', 'Toledo', 'Valencia', 'Valladolid', 'Vizcaya',
+  'Zamora', 'Zaragoza', 'Ceuta', 'Melilla',
+];
 
 /// Página para editar el perfil del usuario,
 /// con actualización real en servidor y eliminación de cuenta.
@@ -29,6 +42,13 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   late final TextEditingController _telefonoCtrl;
   late final TextEditingController _emailCtrl;
   late final TextEditingController _bioCtrl;
+  late TextEditingController? _categoryCtrl;
+  late TextEditingController? _experienceCtrl;
+  late TextEditingController? _cityCtrl;
+  late TextEditingController? _descriptionCtrl;
+
+  int? _selectedCategoryId;
+  String? _selectedCity;
 
   File? _profileImage; // Imagen: File local si se cambia
   bool _isSaving = false; // Indicador de carga
@@ -42,6 +62,39 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     _telefonoCtrl = TextEditingController(text: user.telefon);
     _emailCtrl = TextEditingController(text: user.email);
     _bioCtrl = TextEditingController(text: user.bio ?? '');
+
+    if (user.tipus == true) {
+      // Busca el profesional del usuario
+      ref.read(professionalsProvider('')).whenData((profs) {
+        final prof = profs.firstWhere(
+          (p) => p.userId == user.id,
+          orElse: () => ProfessionalModel(
+            id: 0,
+            userId: user.id,
+            userName: '',
+            userAvatar: '',
+            categoryId: 0,
+            categoryName: '',
+            experience: 0,
+            city: '',
+            description: '',
+            avgRating: 0.0,
+            reviewsCount: 0,
+          ),
+        );
+        setState(() {
+          _selectedCategoryId = prof.categoryId != 0 ? prof.categoryId : null;
+          _experienceCtrl = TextEditingController(text: prof.experience.toString());
+          _selectedCity = _ciudades.contains(prof.city) ? prof.city : '';
+          _descriptionCtrl = TextEditingController(text: prof.description);
+        });
+      });
+    } else {
+      _categoryCtrl = null;
+      _experienceCtrl = null;
+      _cityCtrl = null;
+      _descriptionCtrl = null;
+    }
   }
 
   @override
@@ -128,6 +181,16 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           ..fields['telefon'] = _telefonoCtrl.text
           ..fields['email'] = _emailCtrl.text
           ..fields['bio'] = _bioCtrl.text;
+
+    // Adjuntar campos profesionales si corresponde
+    final user = ref.read(userProvider)!;
+    if (user.tipus && _categoryCtrl != null) {
+      req.fields['category'] = _categoryCtrl!.text;
+      req.fields['experience'] = _experienceCtrl!.text;
+      req.fields['city'] = _cityCtrl!.text;
+      req.fields['description'] = _descriptionCtrl!.text;
+    }
+
     // Adjuntar nueva foto si hay
     if (_profileImage != null) {
       req.files.add(
@@ -137,6 +200,22 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
     final streamed = await req.send();
     final body = await streamed.stream.bytesToString();
     final data = jsonDecode(body);
+    return data['success'] == true;
+  }
+
+  Future<bool> _updateProfessionalOnServer(int userId) async {
+    final uri = Uri.parse('http://10.100.0.12/reforma360_api/update_professional.php');
+    final resp = await http.post(
+      uri,
+      body: {
+        'user_id': userId.toString(),
+        'category': _selectedCategoryId?.toString() ?? '',
+        'experience': _experienceCtrl?.text ?? '',
+        'city': _selectedCity ?? '',
+        'description': _descriptionCtrl?.text ?? '',
+      },
+    );
+    final data = jsonDecode(resp.body);
     return data['success'] == true;
   }
 
@@ -152,6 +231,12 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
       final ok = await _updateProfileOnServer(user.id);
       if (!ok) throw Exception('Servidor rechazó cambios');
 
+      // Si es profesional, actualiza también los datos profesionales
+      if (user.tipus && _categoryCtrl != null) {
+        final okProf = await _updateProfessionalOnServer(user.id);
+        if (!okProf) throw Exception('Error al guardar datos profesionales');
+      }
+
       // Actualizar estado local
       ref.read(userProvider.notifier).state = UserModel(
         id: user.id,
@@ -160,10 +245,9 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         email: _emailCtrl.text,
         telefon: _telefonoCtrl.text,
         tipus: user.tipus,
-        foto:
-            _profileImage != null
-                ? 'media/profile/${user.id}.${_profileImage!.path.split('.').last}'
-                : user.foto,
+        foto: _profileImage != null
+            ? 'media/profile/${user.id}.${_profileImage!.path.split('.').last}'
+            : user.foto,
         bio: _bioCtrl.text,
       );
 
@@ -327,7 +411,72 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                     maxLines: 3,
                     required: false,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
+
+                  if (user.tipus) ...[
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final categoriesAsync = ref.watch(categoriesProvider);
+                        return categoriesAsync.when(
+                          data: (categories) => DropdownButtonFormField<int>(
+                            value: _selectedCategoryId,
+                            decoration: const InputDecoration(
+                              labelText: 'Categoría',
+                              border: OutlineInputBorder(),
+                              filled: true,
+                            ),
+                            items: [
+                              const DropdownMenuItem<int>(
+                                value: null,
+                                child: Text('Selecciona una categoría'),
+                              ),
+                              ...categories.map<DropdownMenuItem<int>>((cat) => DropdownMenuItem<int>(
+                                    value: cat['id'] as int,
+                                    child: Text(cat['nombre']),
+                                  ))
+                            ],
+                            onChanged: (val) {
+                              setState(() {
+                                _selectedCategoryId = val;
+                              });
+                            },
+                            validator: (val) => (val == null) ? 'Selecciona una categoría' : null,
+                          ),
+                          loading: () => const CircularProgressIndicator(),
+                          error: (e, _) => Text('Error al cargar categorías: $e'),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    _buildField(_experienceCtrl!, 'Años de experiencia', keyboard: TextInputType.number),
+                    const SizedBox(height: 12),
+
+                    DropdownButtonFormField<String>(
+                      value: _selectedCity,
+                      decoration: const InputDecoration(
+                        labelText: 'Ciudad',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                      ),
+                      items: _ciudades
+                          .map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c.isEmpty ? 'Todas' : c),
+                              ))
+                          .toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedCity = val;
+                        });
+                      },
+                      validator: (val) => (val == null || val.isEmpty) ? 'Selecciona una ciudad' : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    _buildField(_descriptionCtrl!, 'Descripción', maxLines: 3, required: false),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Botón Guardar cambios
                   SizedBox(
