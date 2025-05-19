@@ -97,12 +97,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
 
       // Rutas principales de la aplicación
-      GoRoute(path: RouteNames.home, builder: (_, __) => const HomePage()),
-      GoRoute(path: RouteNames.feed, builder: (_, __) => const FeedPage()),
       GoRoute(
-        path: RouteNames.notifications,
-        builder: (_, __) => const NotificationPage(),
+        path: RouteNames.home,
+        name: RouteNames.home,
+        builder: (_, __) => const HomePage(),
       ),
+      GoRoute(path: RouteNames.feed, builder: (_, __) => const FeedPage()),
 
       // Ruta de mensajes que requiere el ID del usuario actual
       GoRoute(
