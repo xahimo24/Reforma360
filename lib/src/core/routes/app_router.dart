@@ -102,7 +102,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.home,
         builder: (_, __) => const HomePage(),
       ),
-      GoRoute(path: RouteNames.feed, builder: (_, __) => const FeedPage()),
+      GoRoute(
+        path: RouteNames.feed,
+        name: RouteNames.feed,
+        builder: (_, __) => const FeedPage(),
+      ),
 
       // Ruta de mensajes que requiere el ID del usuario actual
       GoRoute(
@@ -156,7 +160,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Ruta para el chat individual: recibe conversationId en la URL.
+      // Ruta para el chat individual: recibe conversationId en la URL
       GoRoute(
         path: '${RouteNames.chat}/:conversationId',
         name: RouteNames.chat,
@@ -165,9 +169,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             state.pathParameters['conversationId']!,
           );
           final currentUserId = ref.read(userProvider)!.id.toString();
+          // Extra debe venir con professionalName y professionalAvatarUrl
+          final args = state.extra as Map<String, dynamic>;
           return ChatPage(
             conversationId: conversationId,
             currentUserId: currentUserId,
+            professionalName: args['professionalName'] as String,
+            professionalAvatarUrl: args['professionalAvatarUrl'] as String,
           );
         },
       ),
