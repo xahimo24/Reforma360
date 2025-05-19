@@ -200,18 +200,45 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Bio:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+
+                    // --- BIO EN CARD ---
+                    Card(
+                      color: Colors.blueGrey[50],
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(Icons.info_outline, color: Colors.black, size: 22),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Bio',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              user.bio ?? 'Usuari de Reforma 360',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Text(
-                      user.bio ??
-                          'Usuari de Reforma 360', // Mostra la biografia o un text per defecte.
-                      style: const TextStyle(fontSize: 16),
-                    ),
+                    // --- FIN BIO EN CARD ---
+
                     if (user.tipus) ...[
                       Consumer(
                         builder: (context, ref, _) {
@@ -223,17 +250,73 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 return const Text('No tienes perfil profesional.');
                               }
                               final prof = profsList.first;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Datos profesionales:', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Text('Categoría: ${prof.categoryName}'),
-                                  Text('Experiencia: ${prof.experience} años'),
-                                  Text('Ciudad: ${prof.city}'),
-                                  Text('Descripción: ${prof.description}'),
-                                  const SizedBox(height: 24),
-                                ],
-                              );
+                                return Card(
+                                color: Colors.blueGrey[50],
+                                margin: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                    children: const [
+                                      Icon(Icons.work, color: Colors.black, size: 22),
+                                      SizedBox(width: 8),
+                                      Text(
+                                      'Datos profesionales',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Colors.black,
+                                      ),
+                                      ),
+                                    ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                    children: [
+                                      const Icon(Icons.category, size: 18, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Text('Categoría: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                      Text(prof.categoryName),
+                                    ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                    children: [
+                                      const Icon(Icons.timeline, size: 18, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Text('Experiencia: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                      Text('${prof.experience} años'),
+                                    ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                    children: [
+                                      const Icon(Icons.location_city, size: 18, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Text('Ciudad: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                      Text(prof.city),
+                                    ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.description, size: 18, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Text('Descripción: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                      Expanded(child: Text(prof.description)),
+                                    ],
+                                    ),
+                                  ],
+                                  ),
+                                ),
+                                );
                             },
                             loading: () => const CircularProgressIndicator(),
                             error: (e, _) => Text('Error: $e'),

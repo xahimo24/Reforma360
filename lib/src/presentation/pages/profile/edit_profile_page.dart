@@ -428,7 +428,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                             items: [
                               const DropdownMenuItem<int>(
                                 value: null,
-                                child: Text('Selecciona una categoría'),
+                                child: Text('Sin categoría'),
                               ),
                               ...categories.map<DropdownMenuItem<int>>((cat) => DropdownMenuItem<int>(
                                     value: cat['id'] as int,
