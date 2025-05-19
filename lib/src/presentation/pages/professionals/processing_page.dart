@@ -2,7 +2,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:go_router/go_router.dart';
 import 'package:reforma360/src/services/message_service.dart';
+import '../../../core/routes/route_names.dart'; // Rutes de l'aplicació.
 
 class ProcessingPage extends StatefulWidget {
   final String professionalId;
@@ -52,12 +54,13 @@ class _ProcessingPageState extends State<ProcessingPage> {
         if (data['success'] == true && data['tareas'] is List) {
           final List tareas = data['tareas'];
           setState(() {
-            availableTasks = tareas.map<Map<String, String>>((t) {
-              return {
-                'nom': t['nom']?.toString() ?? '',
-                'descripcio': t['descripcio']?.toString() ?? '',
-              };
-            }).toList();
+            availableTasks =
+                tareas.map<Map<String, String>>((t) {
+                  return {
+                    'nom': t['nom']?.toString() ?? '',
+                    'descripcio': t['descripcio']?.toString() ?? '',
+                  };
+                }).toList();
           });
         }
       }
@@ -111,7 +114,9 @@ class _ProcessingPageState extends State<ProcessingPage> {
                 ),
                 _buildListTile(
                   'MÉTODO DE PAGO',
-                  paymentMethod.isEmpty ? 'Añade método de pago' : paymentMethod,
+                  paymentMethod.isEmpty
+                      ? 'Añade método de pago'
+                      : paymentMethod,
                   onTap: _showPaymentDialog,
                 ),
                 _buildListTile(
@@ -119,13 +124,16 @@ class _ProcessingPageState extends State<ProcessingPage> {
                   promoCode.isEmpty
                       ? 'Aplicar código promocional'
                       : promoValid
-                          ? '$promoCode (válido)'
-                          : '$promoCode (inválido)',
+                      ? '$promoCode (válido)'
+                      : '$promoCode (inválido)',
                   onTap: _showPromoDialog,
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-                  child: Text('ELEMENTOS', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'ELEMENTOS',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
                 ...availableTasks.map((task) {
                   final taskName = task['nom'] ?? '';
@@ -134,17 +142,21 @@ class _ProcessingPageState extends State<ProcessingPage> {
                       selectedTasks.contains(taskName)
                           ? Icons.check_circle
                           : Icons.radio_button_unchecked,
-                      color: selectedTasks.contains(taskName) ? Colors.green : null,
+                      color:
+                          selectedTasks.contains(taskName)
+                              ? Colors.green
+                              : null,
                     ),
                     title: Text(taskName),
                     subtitle: Text(task['descripcio'] ?? ''),
-                    onTap: () => setState(() {
-                      if (selectedTasks.contains(taskName)) {
-                        selectedTasks.remove(taskName);
-                      } else {
-                        selectedTasks.add(taskName);
-                      }
-                    }),
+                    onTap:
+                        () => setState(() {
+                          if (selectedTasks.contains(taskName)) {
+                            selectedTasks.remove(taskName);
+                          } else {
+                            selectedTasks.add(taskName);
+                          }
+                        }),
                   );
                 }).toList(),
                 const SizedBox(height: 20),
@@ -166,14 +178,17 @@ class _ProcessingPageState extends State<ProcessingPage> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                  final mensaje = StringBuffer()
-                    ..writeln('Hola ${widget.professionalName},')
-                    ..writeln('Soy ${widget.userName}, quisiera un presupuesto con estos datos:')
-                    ..writeln('- Dirección: $address')
-                    ..writeln('- Plazo: $contactDeadline')
-                    ..writeln('- Pago: $paymentMethod')
-                    ..writeln('- Promo: ${promoValid ? promoCode : '—'}')
-                    ..writeln('- Elementos: ${selectedTasks.join(', ')}');
+                  final mensaje =
+                      StringBuffer()
+                        ..writeln('Hola ${widget.professionalName},')
+                        ..writeln(
+                          'Soy ${widget.userName}, quisiera un presupuesto con estos datos:',
+                        )
+                        ..writeln('- Dirección: $address')
+                        ..writeln('- Plazo: $contactDeadline')
+                        ..writeln('- Pago: $paymentMethod')
+                        ..writeln('- Promo: ${promoValid ? promoCode : '—'}')
+                        ..writeln('- Elementos: ${selectedTasks.join(', ')}');
 
                   try {
                     final convoId = await MessageService.sendQuoteRequest(
@@ -182,16 +197,20 @@ class _ProcessingPageState extends State<ProcessingPage> {
                       subject: 'Solicitud de presupuesto',
                       body: mensaje.toString(),
                     );
-                    Navigator.pushNamed(context, '/chat', arguments: convoId);
+                    GoRouter.of(context).push('/chat/$convoId');
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error al enviar la solicitud: $e')),
+                      SnackBar(
+                        content: Text('Error al enviar la solicitud: $e'),
+                      ),
                     );
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: const Text('PEDIR PRESUPUESTO'),
               ),
@@ -215,17 +234,26 @@ class _ProcessingPageState extends State<ProcessingPage> {
     final controller = TextEditingController(text: address);
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Introduce dirección'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Calle, número, ciudad...'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Aceptar')),
-        ],
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Introduce dirección'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: 'Calle, número, ciudad...',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, controller.text),
+                child: const Text('Aceptar'),
+              ),
+            ],
+          ),
     );
     if (result != null && result.length >= 5) {
       setState(() => address = result);
@@ -235,12 +263,19 @@ class _ProcessingPageState extends State<ProcessingPage> {
   Future<void> _showDeadlineSelector() async {
     final result = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) => ListView(
-        children: [
-          ListTile(title: const Text('ESTÁNDAR | 3 – 4 días'), onTap: () => Navigator.pop(context, 'ESTÁNDAR | 3 – 4 días')),
-          ListTile(title: const Text('PREMIUM | 24 – 48 horas'), onTap: () => Navigator.pop(context, 'PREMIUM | 24 – 48 horas')),
-        ],
-      ),
+      builder:
+          (context) => ListView(
+            children: [
+              ListTile(
+                title: const Text('ESTÁNDAR | 3 – 4 días'),
+                onTap: () => Navigator.pop(context, 'ESTÁNDAR | 3 – 4 días'),
+              ),
+              ListTile(
+                title: const Text('PREMIUM | 24 – 48 horas'),
+                onTap: () => Navigator.pop(context, 'PREMIUM | 24 – 48 horas'),
+              ),
+            ],
+          ),
     );
     if (result != null) setState(() => contactDeadline = result);
   }
@@ -249,26 +284,33 @@ class _ProcessingPageState extends State<ProcessingPage> {
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Añadir método de pago'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          maxLength: 16,
-          decoration: const InputDecoration(hintText: 'Número de tarjeta'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.length == 16) {
-                Navigator.pop(context, 'Visa *${controller.text.substring(12)}');
-              }
-            },
-            child: const Text('Guardar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Añadir método de pago'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              maxLength: 16,
+              decoration: const InputDecoration(hintText: 'Número de tarjeta'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (controller.text.length == 16) {
+                    Navigator.pop(
+                      context,
+                      'Visa *${controller.text.substring(12)}',
+                    );
+                  }
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
     if (result != null) setState(() => paymentMethod = result);
   }
@@ -277,20 +319,28 @@ class _ProcessingPageState extends State<ProcessingPage> {
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Código promocional'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'Ej: DESCUENTO10'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim().toUpperCase()),
-            child: const Text('Aplicar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Código promocional'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(hintText: 'Ej: DESCUENTO10'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed:
+                    () => Navigator.pop(
+                      context,
+                      controller.text.trim().toUpperCase(),
+                    ),
+                child: const Text('Aplicar'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
     if (result != null) {
       await _validatePromo(result);
