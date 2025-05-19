@@ -251,7 +251,9 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                                 MaterialPageRoute(
                                   builder:
                                       (_) => ProcessingPage(
-                                        professionalId: p.id.toString(),
+                                        professionalId:
+                                            p.userId
+                                                .toString(), // ← NUEVO: id de `usuaris`
                                         professionalName: p.userName,
                                         categoria: p.categoryName,
                                         userId: user.id.toString(),

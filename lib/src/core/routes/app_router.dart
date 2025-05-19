@@ -1,13 +1,10 @@
 // file: lib/src/core/routes/app_router.dart
 
-// Importaciones necesarias para el enrutamiento y la gestión de estado
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-// Importación de las constantes de nombres de rutas
 import 'route_names.dart';
 
-// Importaciones de las páginas de autenticación
 import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_photo_page.dart';
@@ -15,7 +12,6 @@ import 'package:reforma360/src/presentation/pages/auth/register_professional_pag
 import 'package:reforma360/src/presentation/pages/auth/verify_user_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/change_password_page.dart';
 
-// Importaciones de las páginas principales de la aplicación
 import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/feed/feed_page.dart';
 import 'package:reforma360/src/presentation/pages/notification/notification_page.dart';
@@ -27,22 +23,22 @@ import 'package:reforma360/src/presentation/pages/post/new_post_page.dart';
 import 'package:reforma360/src/presentation/pages/professionals/professionals_page.dart';
 import 'package:reforma360/src/presentation/pages/professionals/processing_page.dart';
 
-// Importación del proveedor de autenticación
 import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
 
-// Proveedor que configura el enrutador principal de la aplicación
+/// Proveedor que configura el enrutador principal de la aplicación.
+/// Utiliza GoRouter para definir rutas y lógica de redirección basada en estado de autenticación.
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    // Ruta inicial de la aplicación
+    // Ruta inicial de la aplicación.
     initialLocation: RouteNames.login,
 
-    // Función de redirección que maneja la lógica de autenticación
+    // Lógica de redirección según estado de autenticación.
     redirect: (context, state) {
       final user = ref.read(userProvider);
       final loc = state.uri.path;
 
-      // Conjunto de rutas que requieren que el usuario NO esté autenticado
-      final authRoutes = {
+      // Conjunto de rutas permitidas sin estar autenticado.
+      const authRoutes = {
         RouteNames.login,
         RouteNames.register,
         RouteNames.recoverPassword,
@@ -50,25 +46,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         RouteNames.registerProfessional,
       };
 
-      // Redirige a login si el usuario no está autenticado y trata de acceder a rutas protegidas
+      // Si no hay usuario y la ruta no es de auth, redirige a login.
       if (user == null && !authRoutes.contains(loc)) return RouteNames.login;
-      // Redirige a home si el usuario está autenticado y trata de acceder a rutas de autenticación
+      // Si hay usuario y está en ruta de auth, redirige a home.
       if (user != null && authRoutes.contains(loc)) return RouteNames.home;
       return null;
     },
 
-    // Definición de todas las rutas de la aplicación
+    // Definición de todas las rutas de la aplicación.
     routes: [
-      // Rutas de autenticación
-      GoRoute(path: RouteNames.login, builder: (_, __) => const LoginPage()),
+      // Rutas de autenticación.
+      GoRoute(
+        path: RouteNames.login,
+        name: RouteNames.login,
+        builder: (_, __) => const LoginPage(),
+      ),
       GoRoute(
         path: RouteNames.register,
+        name: RouteNames.register,
         builder: (_, __) => const RegisterPage(),
       ),
-
-      // Ruta para subir foto de perfil durante el registro
       GoRoute(
         path: RouteNames.registerPhoto,
+        name: RouteNames.registerPhoto,
         builder: (ctx, state) {
           final args = state.extra! as Map<String, dynamic>;
           return RegisterPhotoPage(
@@ -79,10 +79,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-
-      // Ruta para registro de profesionales
       GoRoute(
         path: RouteNames.registerProfessional,
+        name: RouteNames.registerProfessional,
         builder: (ctx, state) {
           final args = state.extra! as Map<String, dynamic>;
           return RegisterProfessionalPage(
@@ -92,63 +91,67 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-
-      // Ruta para recuperación de contraseña
       GoRoute(
         path: RouteNames.recoverPassword,
+        name: RouteNames.recoverPassword,
         builder: (_, __) => const VerifyUserPage(),
       ),
 
-      // Rutas principales de la aplicación
-      GoRoute(path: RouteNames.home, builder: (_, __) => const HomePage()),
-      GoRoute(path: RouteNames.feed, builder: (_, __) => const FeedPage()),
+      // Rutas principales de la aplicación.
+      GoRoute(
+        path: RouteNames.home,
+        name: RouteNames.home,
+        builder: (_, __) => const HomePage(),
+      ),
+      GoRoute(
+        path: RouteNames.feed,
+        name: RouteNames.feed,
+        builder: (_, __) => const FeedPage(),
+      ),
       GoRoute(
         path: RouteNames.notifications,
+        name: RouteNames.notifications,
         builder: (_, __) => const NotificationPage(),
       ),
-
-      // Ruta de mensajes que requiere el ID del usuario actual
       GoRoute(
         path: RouteNames.messages,
-        builder:
-            (ctx, state) =>
-                MessagesPage(userId: ref.read(userProvider)!.id.toString()),
+        name: RouteNames.messages,
+        builder: (ctx, state) {
+          final userId = ref.read(userProvider)!.id.toString();
+          return MessagesPage(userId: userId);
+        },
       ),
-
-      // Rutas relacionadas con el perfil
       GoRoute(
         path: RouteNames.profile,
+        name: RouteNames.profile,
         builder: (_, __) => const ProfilePage(),
       ),
       GoRoute(
         path: RouteNames.editProfile,
+        name: RouteNames.editProfile,
         builder: (_, __) => const EditProfilePage(),
       ),
-
-      // Ruta para crear nuevos posts
       GoRoute(
         path: RouteNames.newPost,
+        name: RouteNames.newPost,
         builder: (_, __) => const NewPostPage(),
       ),
-
-      // Ruta para cambiar contraseña
       GoRoute(
         path: RouteNames.changePassword,
+        name: RouteNames.changePassword,
         builder: (ctx, state) {
           final email = state.extra as String? ?? '';
           return ChangePasswordPage(email: email);
         },
       ),
-
-      // Ruta para ver profesionales
       GoRoute(
         path: RouteNames.professionals,
-        builder: (ctx, state) => const ProfessionalsPage(),
+        name: RouteNames.professionals,
+        builder: (_, __) => const ProfessionalsPage(),
       ),
-
-      // Ruta para procesar solicitudes de profesionales
       GoRoute(
         path: RouteNames.processing,
+        name: RouteNames.processing,
         builder: (ctx, state) {
           final args = state.extra as Map<String, dynamic>;
           return ProcessingPage(
@@ -161,14 +164,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Ruta para el chat individual
+      // Ruta para el chat individual: recibe conversationId en la URL.
       GoRoute(
-        path: RouteNames.chat,
+        path: '${RouteNames.chat}/:conversationId',
+        name: RouteNames.chat,
         builder: (ctx, state) {
-          final args = state.extra as Map<String, dynamic>;
+          final conversationId = int.parse(
+            state.pathParameters['conversationId']!,
+          );
+          final currentUserId = ref.read(userProvider)!.id.toString();
           return ChatPage(
-            conversationId: args['conversationId'] as int,
-            currentUserId: args['currentUserId'] as String,
+            conversationId: conversationId,
+            currentUserId: currentUserId,
           );
         },
       ),

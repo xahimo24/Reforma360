@@ -57,23 +57,25 @@ class MessageService {
     required String body,
   }) async {
     final response = await http.post(
-      Uri.parse('http://10.100.0.12/reforma360_api/send_quote_request.php'),
+      Uri.parse('http://10.100.0.12/reforma360_api/send_message.php'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'fromUserId': fromUserId,
         'toProfessionalId': toProfessionalId,
-        'subject': subject,
         'body': body,
       }),
     );
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       if (data['success'] == true && data['conversationId'] != null) {
         return data['conversationId'] as int;
       }
-      throw Exception('Error en la respuesta del servidor');
+      throw Exception('Respuesta inválida del servidor: ${response.body}');
+    } else {
+      // Aquí atrapas el JSON de error que envía PHP
+      throw Exception('Error ${response.statusCode}: ${response.body}');
     }
-    throw Exception('Error al enviar solicitud: ${response.statusCode}');
   }
 }
 
