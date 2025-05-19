@@ -24,19 +24,14 @@ import 'package:reforma360/src/presentation/pages/professionals/processing_page.
 
 import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
 
-/// Proveedor que configura el enrutador principal de la aplicación.
-/// Utiliza GoRouter para definir rutas y lógica de redirección basada en estado de autenticación.
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    // Ruta inicial de la aplicación.
     initialLocation: RouteNames.login,
 
-    // Lógica de redirección según estado de autenticación.
     redirect: (context, state) {
       final user = ref.read(userProvider);
       final loc = state.uri.path;
 
-      // Conjunto de rutas permitidas sin estar autenticado.
       const authRoutes = {
         RouteNames.login,
         RouteNames.register,
@@ -45,16 +40,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         RouteNames.registerProfessional,
       };
 
-      // Si no hay usuario y la ruta no es de auth, redirige a login.
       if (user == null && !authRoutes.contains(loc)) return RouteNames.login;
-      // Si hay usuario y está en ruta de auth, redirige a home.
       if (user != null && authRoutes.contains(loc)) return RouteNames.home;
       return null;
     },
 
-    // Definición de todas las rutas de la aplicación.
     routes: [
-      // Rutas de autenticación.
       GoRoute(
         path: RouteNames.login,
         name: RouteNames.login,
@@ -96,7 +87,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const VerifyUserPage(),
       ),
 
-      // Rutas principales de la aplicación
       GoRoute(
         path: RouteNames.home,
         name: RouteNames.home,
@@ -107,8 +97,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.feed,
         builder: (_, __) => const FeedPage(),
       ),
-
-      // Ruta de mensajes que requiere el ID del usuario actual
       GoRoute(
         path: RouteNames.messages,
         name: RouteNames.messages,
@@ -160,7 +148,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Ruta para el chat individual: recibe conversationId en la URL
+      // Chat route: protege el extra para evitar el casteo de null
       GoRoute(
         path: '${RouteNames.chat}/:conversationId',
         name: RouteNames.chat,
@@ -169,13 +157,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             state.pathParameters['conversationId']!,
           );
           final currentUserId = ref.read(userProvider)!.id.toString();
-          // Extra debe venir con professionalName y professionalAvatarUrl
-          final args = state.extra as Map<String, dynamic>;
+
+          // Intenta extraer el Map; si es null, cae a {}
+          final args = state.extra as Map<String, dynamic>? ?? {};
+
+          // Usa valores por defecto si no vienen en extra
+          final professionalName =
+              args['professionalName'] as String? ?? 'Desconocido';
+          final professionalAvatarUrl =
+              args['professionalAvatarUrl'] as String? ??
+              'https://via.placeholder.com/150';
+
           return ChatPage(
             conversationId: conversationId,
             currentUserId: currentUserId,
-            professionalName: args['professionalName'] as String,
-            professionalAvatarUrl: args['professionalAvatarUrl'] as String,
+            professionalName: professionalName,
+            professionalAvatarUrl: professionalAvatarUrl,
           );
         },
       ),
