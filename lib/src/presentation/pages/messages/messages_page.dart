@@ -69,7 +69,10 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
                 onTap: () {
                   context.pushNamed(
                     RouteNames.chat,
-                    pathParameters: {'conversationId': conv.id.toString()},
+                    pathParameters: {
+                      'conversationId':
+                          conv.professionalId, // ¡ojo! aquí usamos professionalId
+                    },
                     extra: {
                       'professionalId': conv.professionalId,
                       'professionalName': conv.professionalName,

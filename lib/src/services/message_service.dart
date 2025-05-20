@@ -5,15 +5,13 @@ import 'package:http/http.dart' as http;
 
 /// Modelo de conversación con un profesional.
 class Conversation {
-  final int id;
-  final String professionalId; // ← nuevo
+  final String professionalId;
   final String professionalName;
   final String professionalAvatarUrl;
   final String lastMessage;
   final DateTime updatedAt;
 
   Conversation({
-    required this.id,
     required this.professionalId,
     required this.professionalName,
     required this.professionalAvatarUrl,
@@ -23,8 +21,7 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
-      id: json['conversationId'] as int,
-      professionalId: json['professionalId'].toString(), // ← nuevo
+      professionalId: json['professionalId'].toString(),
       professionalName: json['professionalName'] as String,
       professionalAvatarUrl: json['professionalAvatarUrl'] as String,
       lastMessage: json['lastMessage'] as String,
