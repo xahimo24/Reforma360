@@ -9,6 +9,7 @@ import '../../../core/routes/route_names.dart'; // Rutes de l'aplicació.
 class ProcessingPage extends StatefulWidget {
   final String professionalId;
   final String professionalName;
+  final String professionalAvatarUrl;
   final String categoria;
   final String userId;
   final String userName;
@@ -17,6 +18,7 @@ class ProcessingPage extends StatefulWidget {
     Key? key,
     required this.professionalId,
     required this.professionalName,
+    required this.professionalAvatarUrl,
     required this.categoria,
     required this.userId,
     required this.userName,
@@ -190,6 +192,16 @@ class _ProcessingPageState extends State<ProcessingPage> {
                         ..writeln('- Promo: ${promoValid ? promoCode : '—'}')
                         ..writeln('- Elementos: ${selectedTasks.join(', ')}');
 
+                        final payload = {
+                        'fromUserId': widget.userId,
+                        'toProfessionalId': widget.professionalId,
+                        'subject': 'Solicitud de presupuesto',
+                        'body': mensaje.toString(),
+                  };  
+
+                  // PRINT: qué vamos a enviar
+                  print('▶️ sendQuoteRequest payload → $payload');
+
                   try {
                     final convoId = await MessageService.sendQuoteRequest(
                       fromUserId: widget.userId,
@@ -197,7 +209,18 @@ class _ProcessingPageState extends State<ProcessingPage> {
                       subject: 'Solicitud de presupuesto',
                       body: mensaje.toString(),
                     );
-                    GoRouter.of(context).push('/chat/$convoId');
+                    // PRINT: id de conversación que devuelve el servidor
+                    print(
+                      '◀️ sendQuoteRequest returned conversationId = $convoId',
+                    );
+                    GoRouter.of(context).push(
+                      '/chat/$convoId',
+                      extra: {
+                        'professionalId': widget.professionalId,
+                        'professionalName': widget.professionalName,
+                        'professionalAvatarUrl': widget.professionalAvatarUrl,
+                      },
+                    );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

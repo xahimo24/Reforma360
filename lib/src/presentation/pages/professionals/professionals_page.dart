@@ -246,15 +246,21 @@ class _ProfessionalsPageState extends ConsumerState<ProfessionalsPage> {
                             onPressed: () {
                               final user = ref.read(userProvider);
                               if (user == null) return;
+
+                              // Construye la URL completa del avatar
+                              final avatarUrl =
+                                  p.userAvatar.startsWith('http')
+                                      ? p.userAvatar
+                                      : 'http://10.100.0.12/reforma360_api/${p.userAvatar}';
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
                                       (_) => ProcessingPage(
-                                        professionalId:
-                                            p.userId
-                                                .toString(), // ← NUEVO: id de `usuaris`
+                                        professionalId: p.userId.toString(),
                                         professionalName: p.userName,
+                                        professionalAvatarUrl: avatarUrl,
                                         categoria: p.categoryName,
                                         userId: user.id.toString(),
                                         userName: '${user.nom} ${user.cognoms}',

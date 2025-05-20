@@ -147,6 +147,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             categoria:        args['categoria'] as String,
             userId:           args['userId'] as String,
             userName:         args['userName'] as String,
+            professionalAvatarUrl: args['professionalAvatarUrl'] as String,
           );
         },
       ),

@@ -19,13 +19,27 @@ class MessagesPage extends ConsumerStatefulWidget {
 
 class _MessagesPageState extends ConsumerState<MessagesPage> {
   late Future<List<Conversation>> _futureConversations;
+  String _searchTerm = '';
 
   @override
   void initState() {
     super.initState();
+    _loadConversations();
+  }
+
+  void _loadConversations() {
     _futureConversations = MessageService.getConversations(
       userId: widget.userId,
     );
+    setState(() {});
+  }
+
+  // Helper para formatear relative time (muy básico)
+  String _formatTimeAgo(DateTime dt) {
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
+    if (diff.inHours < 24) return '${diff.inHours}h';
+    return '${diff.inDays}d';
   }
 
   @override
@@ -35,44 +49,74 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
         (user != null && user.foto.startsWith('http')) ? user.foto : null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mensajes'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Mensajes'),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Busca conversaciones…',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey[200],
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (v) => setState(() => _searchTerm = v),
+            ),
+          ),
+        ),
+        elevation: 1,
+      ),
       body: FutureBuilder<List<Conversation>>(
         future: _futureConversations,
-        builder: (context, snapshot) {
+        builder: (ctx, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
-          final conversations = snapshot.data ?? [];
-          if (conversations.isEmpty) {
-            return const Center(child: Text('No tienes conversaciones.'));
+          final all = snapshot.data ?? [];
+          // Aplicamos filtro local por nombre o último mensaje
+          final filtered =
+              all.where((c) {
+                final term = _searchTerm.toLowerCase();
+                return c.professionalName.toLowerCase().contains(term) ||
+                    c.lastMessage.toLowerCase().contains(term);
+              }).toList();
+
+          if (filtered.isEmpty) {
+            return const Center(
+              child: Text('No se han encontrado conversaciones.'),
+            );
           }
-          return ListView.builder(
-            itemCount: conversations.length,
-            itemBuilder: (ctx, index) {
-              final conv = conversations[index];
-              final dateStr = conv.updatedAt.toLocal().toString().split(' ')[0];
+
+          return ListView.separated(
+            itemCount: filtered.length,
+            separatorBuilder: (_, __) => const Divider(indent: 72),
+            itemBuilder: (ctx, i) {
+              final conv = filtered[i];
+              final timeAgo = _formatTimeAgo(conv.updatedAt);
+              final preview =
+                  conv.lastMessage.length > 30
+                      ? '${conv.lastMessage.substring(0, 30)}…'
+                      : conv.lastMessage;
 
               return ListTile(
-                leading: CircleAvatar(
-                  child: Text(
-                    conv.professionalName.isNotEmpty
-                        ? conv.professionalName[0]
-                        : '?',
-                  ),
-                ),
-                title: Text(conv.professionalName),
-                subtitle: Text(conv.lastMessage),
-                trailing: Text(dateStr),
                 onTap: () {
                   context.pushNamed(
                     RouteNames.chat,
-                    pathParameters: {
-                      'conversationId':
-                          conv.professionalId, // ¡ojo! aquí usamos professionalId
-                    },
+                    pathParameters: {'conversationId': conv.professionalId},
                     extra: {
                       'professionalId': conv.professionalId,
                       'professionalName': conv.professionalName,
@@ -80,6 +124,19 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
                     },
                   );
                 },
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(conv.professionalAvatarUrl),
+                ),
+                title: Text(
+                  conv.professionalName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(preview),
+                trailing: Text(timeAgo),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
               );
             },
           );

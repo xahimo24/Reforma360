@@ -48,8 +48,11 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['messageId'] as int,
-      conversationId: json['conversationId'] as int,
+      id: int.parse(json['messageId'].toString()),
+      conversationId:
+          json.containsKey('conversationId')
+              ? int.parse(json['conversationId'].toString())
+              : 0,
       fromUserId: json['fromUserId'].toString(),
       body: json['body'].toString(),
       sentAt: DateTime.parse(json['sentAt'].toString()),
@@ -66,11 +69,24 @@ class MessageService {
     final uri = Uri.parse(
       'http://10.100.0.12/reforma360_api/get_conversations.php?userId=$userId',
     );
+
+    print('GET → $uri');
     final resp = await http.get(uri);
+    print('← ${resp.statusCode}: ${resp.body}');
+
     if (resp.statusCode != 200) {
       throw Exception('Error al cargar conversaciones: ${resp.statusCode}');
     }
-    final data = jsonDecode(resp.body);
+
+    // Limpiar cualquier HTML o texto antes del JSON
+    String raw = resp.body;
+    final firstCurly = raw.indexOf('{');
+    final jsonPart =
+        firstCurly >= 0
+            ? raw.substring(firstCurly)
+            : raw; // si no hay '{', asumimos que todo es JSON
+            
+    final data = jsonDecode(jsonPart);
     if (data['success'] == true && data['conversations'] is List) {
       return (data['conversations'] as List)
           .map((j) => Conversation.fromJson(j as Map<String, dynamic>))
@@ -86,16 +102,21 @@ class MessageService {
     required String subject,
     required String body,
   }) async {
+    final payload = {
+      'fromUserId': fromUserId,
+      'toProfessionalId': toProfessionalId,
+      'subject': subject,
+      'body': body,
+    };
+    print('POST → $payload');
+
     final resp = await http.post(
       Uri.parse('http://10.100.0.12/reforma360_api/send_message.php'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'fromUserId': fromUserId,
-        'toProfessionalId': toProfessionalId,
-        'subject': subject,
-        'body': body,
-      }),
+      body: jsonEncode(payload),
     );
+    print('← ${resp.statusCode}: ${resp.body}');
+
     if (resp.statusCode != 200) {
       throw Exception('Error ${resp.statusCode}: ${resp.body}');
     }
@@ -117,13 +138,21 @@ class MessageService {
       path: '/reforma360_api/get_messages.php',
       queryParameters: {'userId': userId, 'professionalId': professionalId},
     );
+
     print('GET → $uri');
     final resp = await http.get(uri);
     print('← ${resp.statusCode}: ${resp.body}');
+
     if (resp.statusCode != 200) {
       throw Exception('Error al cargar mensajes: ${resp.statusCode}');
     }
-    final data = jsonDecode(resp.body);
+
+    // Limpiar cualquier HTML o texto antes del JSON
+    String raw = resp.body;
+    final firstBrace = raw.indexOf(RegExp(r'[\{\[]'));
+    final jsonPart = firstBrace >= 0 ? raw.substring(firstBrace) : raw;
+
+    final data = jsonDecode(jsonPart);
     if (data['success'] == true && data['messages'] is List) {
       return (data['messages'] as List)
           .map((j) => Message.fromJson(j as Map<String, dynamic>))
@@ -144,12 +173,14 @@ class MessageService {
       'body': body,
     };
     print('POST → $payload');
+
     final resp = await http.post(
       Uri.parse('http://10.100.0.12/reforma360_api/send_message.php'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
     print('← ${resp.statusCode}: ${resp.body}');
+
     if (resp.statusCode != 200) {
       throw Exception('Error al enviar mensaje: ${resp.statusCode}');
     }
