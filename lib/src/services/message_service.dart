@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 /// Modelo de conversación con un profesional.
 class Conversation {
   final int id;
+  final String professionalId; // ← nuevo
   final String professionalName;
   final String professionalAvatarUrl;
   final String lastMessage;
@@ -13,6 +14,7 @@ class Conversation {
 
   Conversation({
     required this.id,
+    required this.professionalId,
     required this.professionalName,
     required this.professionalAvatarUrl,
     required this.lastMessage,
@@ -22,6 +24,7 @@ class Conversation {
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
       id: json['conversationId'] as int,
+      professionalId: json['professionalId'].toString(), // ← nuevo
       professionalName: json['professionalName'] as String,
       professionalAvatarUrl: json['professionalAvatarUrl'] as String,
       lastMessage: json['lastMessage'] as String,
@@ -106,21 +109,20 @@ class MessageService {
     throw Exception('Respuesta inválida del servidor: ${resp.body}');
   }
 
-  /// Obtiene los mensajes de una conversación.
+  /// Obtiene los mensajes entre usuario y profesional.
   static Future<List<Message>> getMessages({
-    required int conversationId,
-    required String currentUserId,
+    required String userId,
+    required String professionalId,
   }) async {
     final uri = Uri(
       scheme: 'http',
       host: '10.100.0.12',
       path: '/reforma360_api/get_messages.php',
-      queryParameters: {
-        'conversationId': conversationId.toString(),
-        'userId': currentUserId,
-      },
+      queryParameters: {'userId': userId, 'professionalId': professionalId},
     );
+    print('GET → $uri');
     final resp = await http.get(uri);
+    print('← ${resp.statusCode}: ${resp.body}');
     if (resp.statusCode != 200) {
       throw Exception('Error al cargar mensajes: ${resp.statusCode}');
     }
@@ -130,24 +132,27 @@ class MessageService {
           .map((j) => Message.fromJson(j as Map<String, dynamic>))
           .toList();
     }
-    return [];
+    throw Exception('Respuesta inválida al cargar mensajes');
   }
 
-  /// Envía un mensaje de texto dentro de una conversación existente.
+  /// Envía un mensaje al profesional (nuevo o continuación).
   static Future<void> sendMessage({
-    required int conversationId,
     required String fromUserId,
+    required String toProfessionalId,
     required String body,
   }) async {
+    final payload = {
+      'fromUserId': fromUserId,
+      'toProfessionalId': toProfessionalId,
+      'body': body,
+    };
+    print('POST → $payload');
     final resp = await http.post(
       Uri.parse('http://10.100.0.12/reforma360_api/send_message.php'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'conversationId': conversationId,
-        'fromUserId': fromUserId,
-        'body': body,
-      }),
+      body: jsonEncode(payload),
     );
+    print('← ${resp.statusCode}: ${resp.body}');
     if (resp.statusCode != 200) {
       throw Exception('Error al enviar mensaje: ${resp.statusCode}');
     }

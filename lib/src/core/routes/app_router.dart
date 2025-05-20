@@ -1,4 +1,4 @@
-// file: lib/src/core/routes/app_router.dart
+// file: lib/src/core/routes/app_router.dart 
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -14,8 +14,11 @@ import 'package:reforma360/src/presentation/pages/auth/change_password_page.dart
 
 import 'package:reforma360/src/presentation/pages/home/home_page.dart';
 import 'package:reforma360/src/presentation/pages/feed/feed_page.dart';
-import 'package:reforma360/src/presentation/pages/messages/messages_page.dart';
-import 'package:reforma360/src/presentation/pages/messages/chat_page.dart';
+
+// Alias para evitar conflictos
+import 'package:reforma360/src/presentation/pages/messages/messages_page.dart' as messages;
+import 'package:reforma360/src/presentation/pages/messages/chat_page.dart'     as chat;
+
 import 'package:reforma360/src/presentation/pages/profile/profile_page.dart';
 import 'package:reforma360/src/presentation/pages/profile/edit_profile_page.dart';
 import 'package:reforma360/src/presentation/pages/post/new_post_page.dart';
@@ -30,8 +33,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
     redirect: (context, state) {
       final user = ref.read(userProvider);
-      final loc = state.uri.path;
-
+      final loc  = state.uri.path;
       const authRoutes = {
         RouteNames.login,
         RouteNames.register,
@@ -39,7 +41,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         RouteNames.registerPhoto,
         RouteNames.registerProfessional,
       };
-
       if (user == null && !authRoutes.contains(loc)) return RouteNames.login;
       if (user != null && authRoutes.contains(loc)) return RouteNames.home;
       return null;
@@ -86,7 +87,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.recoverPassword,
         builder: (_, __) => const VerifyUserPage(),
       ),
-
       GoRoute(
         path: RouteNames.home,
         name: RouteNames.home,
@@ -97,14 +97,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: RouteNames.feed,
         builder: (_, __) => const FeedPage(),
       ),
+
+      // *** Lista de conversaciones ***
       GoRoute(
         path: RouteNames.messages,
         name: RouteNames.messages,
         builder: (ctx, state) {
           final userId = ref.read(userProvider)!.id.toString();
-          return MessagesPage(userId: userId);
+          return messages.MessagesPage(userId: userId);
         },
       ),
+
       GoRoute(
         path: RouteNames.profile,
         name: RouteNames.profile,
@@ -139,40 +142,31 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (ctx, state) {
           final args = state.extra as Map<String, dynamic>;
           return ProcessingPage(
-            professionalId: args['professionalId'] as String,
+            professionalId:   args['professionalId'] as String,
             professionalName: args['professionalName'] as String,
-            categoria: args['categoria'] as String,
-            userId: args['userId'] as String,
-            userName: args['userName'] as String,
+            categoria:        args['categoria'] as String,
+            userId:           args['userId'] as String,
+            userName:         args['userName'] as String,
           );
         },
       ),
 
-      // Chat route: protege el extra para evitar el casteo de null
+      // *** Chat con el profesional ***
       GoRoute(
         path: '${RouteNames.chat}/:conversationId',
         name: RouteNames.chat,
         builder: (ctx, state) {
-          final conversationId = int.parse(
-            state.pathParameters['conversationId']!,
-          );
           final currentUserId = ref.read(userProvider)!.id.toString();
-
-          // Intenta extraer el Map; si es null, cae a {}
           final args = state.extra as Map<String, dynamic>? ?? {};
+          final professionalId        = args['professionalId']       as String? ?? '';
+          final professionalName      = args['professionalName']     as String? ?? 'Desconocido';
+          final professionalAvatarUrl = args['professionalAvatarUrl']as String? ?? '';
 
-          // Usa valores por defecto si no vienen en extra
-          final professionalName =
-              args['professionalName'] as String? ?? 'Desconocido';
-          final professionalAvatarUrl =
-              args['professionalAvatarUrl'] as String? ??
-              'https://via.placeholder.com/150';
-
-          return ChatPage(
-            conversationId: conversationId,
-            currentUserId: currentUserId,
-            professionalName: professionalName,
-            professionalAvatarUrl: professionalAvatarUrl,
+          return chat.ChatPage(
+            currentUserId:          currentUserId,
+            professionalId:         professionalId,
+            professionalName:       professionalName,
+            professionalAvatarUrl:  professionalAvatarUrl,
           );
         },
       ),

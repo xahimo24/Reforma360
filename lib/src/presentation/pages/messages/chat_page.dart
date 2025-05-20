@@ -1,22 +1,18 @@
-// file: lib/src/presentation/pages/messages/chat_page.dart
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:reforma360/src/services/message_service.dart';
 
-/// Pantalla de chat entre usuario y profesional.
-/// Muestra burbujas de mensaje, campo de entrada y datos del profesional en el AppBar.
+/// Chat entre usuario (currentUserId) y profesional (professionalId).
 class ChatPage extends StatefulWidget {
-  final int conversationId;
   final String currentUserId;
+  final String professionalId;
   final String professionalName;
   final String professionalAvatarUrl;
 
   const ChatPage({
     Key? key,
-    required this.conversationId,
     required this.currentUserId,
+    required this.professionalId,
     required this.professionalName,
     required this.professionalAvatarUrl,
   }) : super(key: key);
@@ -27,8 +23,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   late Future<List<Message>> _futureMessages;
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+  final _controller = TextEditingController();
+  final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -38,8 +34,8 @@ class _ChatPageState extends State<ChatPage> {
 
   void _loadMessages() {
     _futureMessages = MessageService.getMessages(
-      conversationId: widget.conversationId,
-      currentUserId: widget.currentUserId,
+      userId: widget.currentUserId,
+      professionalId: widget.professionalId,
     );
     setState(() {});
   }
@@ -49,8 +45,8 @@ class _ChatPageState extends State<ChatPage> {
     if (text.isEmpty) return;
     try {
       await MessageService.sendMessage(
-        conversationId: widget.conversationId,
         fromUserId: widget.currentUserId,
+        toProfessionalId: widget.professionalId,
         body: text,
       );
       _controller.clear();
@@ -67,21 +63,35 @@ class _ChatPageState extends State<ChatPage> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error al enviar mensaje: $e')));
+      ).showSnackBar(SnackBar(content: Text('Error al enviar: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget avatarWidget() {
+      if (widget.professionalAvatarUrl.startsWith('http')) {
+        return CircleAvatar(
+          backgroundImage: NetworkImage(widget.professionalAvatarUrl),
+          onBackgroundImageError: (_, __) {},
+        );
+      } else {
+        return CircleAvatar(
+          child: Text(
+            widget.professionalName.isNotEmpty
+                ? widget.professionalName[0]
+                : '?',
+          ),
+        );
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
+        leading: const BackButton(),
         title: Row(
           children: [
-            const BackButton(),
-            const SizedBox(width: 8),
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.professionalAvatarUrl),
-            ),
+            avatarWidget(),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -103,7 +113,6 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ],
         ),
-        automaticallyImplyLeading: false,
         elevation: 1,
       ),
       body: Column(
@@ -111,7 +120,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: FutureBuilder<List<Message>>(
               future: _futureMessages,
-              builder: (context, snap) {
+              builder: (ctx, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -221,7 +230,6 @@ class _ChatPageState extends State<ChatPage> {
                   IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: _sendText,
-                    color: Colors.blueAccent,
                   ),
                 ],
               ),
