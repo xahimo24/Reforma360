@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 
 import 'route_names.dart';
 
+// Import de la nueva SplashPage
+import 'package:reforma360/src/presentation/pages/splash/splash_page.dart';
+
 import 'package:reforma360/src/presentation/pages/auth/login_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_page.dart';
 import 'package:reforma360/src/presentation/pages/auth/register_photo_page.dart';
@@ -29,7 +32,8 @@ import 'package:reforma360/src/presentation/providers/auth/auth_provider.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: RouteNames.login,
+    // Arrancamos en la pantalla de splash
+    initialLocation: RouteNames.splash,
 
     redirect: (context, state) {
       final user = ref.read(userProvider);
@@ -47,6 +51,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
+      // Splash screen
+      GoRoute(
+        path: RouteNames.splash,
+        name: RouteNames.splash,
+        builder: (_, __) => const SplashPage(),
+      ),
+
       GoRoute(
         path: RouteNames.login,
         name: RouteNames.login,

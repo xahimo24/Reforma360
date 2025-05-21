@@ -3,6 +3,9 @@
 /// Clase que centraliza todos los nombres de ruta de la aplicación.
 /// A partir de ahora, TODAS las rutas deben estar aquí definidas.
 class RouteNames {
+  /// Pantalla de carga
+  static const splash = '/';
+
   // Auth
   static const login = '/login';
   static const register = '/register';
@@ -14,7 +17,7 @@ class RouteNames {
   static const registerProfessional = '/register-professional';
 
   // Main
-  static const home = '/';
+  static const home = '/home';
   static const feed = '/feed';
   static const professionals = '/professionals';
   static const notifications = '/notifications';
