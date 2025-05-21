@@ -9,6 +9,12 @@ import '../../providers/auth/auth_provider.dart';
 import '../../../core/routes/route_names.dart';
 import 'package:reforma360/src/presentation/widgets/shared/bottom_navigator.dart';
 
+/// Convierte una ruta relativa en URL absoluta apuntando a tu API
+String _fullImageUrl(String relative) {
+  if (relative.startsWith('http')) return relative;
+  return 'http://10.100.0.12/reforma360_api/$relative';
+}
+
 class MessagesPage extends ConsumerStatefulWidget {
   final String userId;
   const MessagesPage({Key? key, required this.userId}) : super(key: key);
@@ -34,7 +40,6 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
     setState(() {});
   }
 
-  // Helper para formatear relative time (muy básico)
   String _formatTimeAgo(DateTime dt) {
     final diff = DateTime.now().difference(dt);
     if (diff.inMinutes < 60) return '${diff.inMinutes}m';
@@ -45,17 +50,25 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
+    final rawAvatar = user?.foto ?? '';
     final avatarUrl =
-        (user != null && user.foto.startsWith('http')) ? user.foto : null;
+        rawAvatar.startsWith('http')
+            ? rawAvatar
+            : rawAvatar.isNotEmpty
+            ? 'http://10.100.0.12/reforma360_api/$rawAvatar'
+            : null;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mensajes'),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 1,
+      ),
+      body: Column(
+        children: [
+          // ─── Buscador ───────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Busca conversaciones…',
@@ -70,77 +83,98 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
               ),
               onChanged: (v) => setState(() => _searchTerm = v),
             ),
           ),
-        ),
-        elevation: 1,
-      ),
-      body: FutureBuilder<List<Conversation>>(
-        future: _futureConversations,
-        builder: (ctx, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          final all = snapshot.data ?? [];
-          // Aplicamos filtro local por nombre o último mensaje
-          final filtered =
-              all.where((c) {
-                final term = _searchTerm.toLowerCase();
-                return c.professionalName.toLowerCase().contains(term) ||
-                    c.lastMessage.toLowerCase().contains(term);
-              }).toList();
 
-          if (filtered.isEmpty) {
-            return const Center(
-              child: Text('No se han encontrado conversaciones.'),
-            );
-          }
+          // ─── Lista de conversaciones ────────────────────────────
+          Expanded(
+            child: FutureBuilder<List<Conversation>>(
+              future: _futureConversations,
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
 
-          return ListView.separated(
-            itemCount: filtered.length,
-            separatorBuilder: (_, __) => const Divider(indent: 72),
-            itemBuilder: (ctx, i) {
-              final conv = filtered[i];
-              final timeAgo = _formatTimeAgo(conv.updatedAt);
-              final preview =
-                  conv.lastMessage.length > 30
-                      ? '${conv.lastMessage.substring(0, 30)}…'
-                      : conv.lastMessage;
+                final all = snapshot.data ?? [];
+                final filtered =
+                    all.where((c) {
+                      final term = _searchTerm.toLowerCase();
+                      return c.professionalName.toLowerCase().contains(term) ||
+                          c.lastMessage.toLowerCase().contains(term);
+                    }).toList();
 
-              return ListTile(
-                onTap: () {
-                  context.pushNamed(
-                    RouteNames.chat,
-                    pathParameters: {'conversationId': conv.professionalId},
-                    extra: {
-                      'professionalId': conv.professionalId,
-                      'professionalName': conv.professionalName,
-                      'professionalAvatarUrl': conv.professionalAvatarUrl,
-                    },
+                if (filtered.isEmpty) {
+                  return const Center(
+                    child: Text('No se han encontrado conversaciones.'),
                   );
-                },
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(conv.professionalAvatarUrl),
-                ),
-                title: Text(
-                  conv.professionalName,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(preview),
-                trailing: Text(timeAgo),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-              );
-            },
-          );
-        },
+                }
+
+                return ListView.separated(
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, __) => const Divider(indent: 72),
+                  itemBuilder: (ctx, i) {
+                    final conv = filtered[i];
+                    final timeAgo = _formatTimeAgo(conv.updatedAt);
+                    final preview =
+                        conv.lastMessage.length > 30
+                            ? '${conv.lastMessage.substring(0, 30)}…'
+                            : conv.lastMessage;
+
+                    return ListTile(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteNames.chat,
+                          pathParameters: {
+                            'conversationId': conv.professionalId,
+                          },
+                          extra: {
+                            'professionalId': conv.professionalId,
+                            'professionalName': conv.professionalName,
+                            'professionalAvatarUrl': conv.professionalAvatarUrl,
+                          },
+                        );
+                      },
+                      leading: CircleAvatar(
+                        radius: 20,
+                        backgroundImage: NetworkImage(
+                          _fullImageUrl(conv.professionalAvatarUrl),
+                        ),
+                        onBackgroundImageError: (_, __) {},
+                        child:
+                            conv.professionalAvatarUrl.isEmpty
+                                ? Text(conv.professionalName[0])
+                                : null,
+                      ),
+                      title: Text(
+                        conv.professionalName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(preview),
+                      trailing: Text(timeAgo),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigation(
         currentIndex: 3,

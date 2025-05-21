@@ -8,6 +8,7 @@ class ChatPage extends StatefulWidget {
   final String professionalId;
   final String professionalName;
   final String professionalAvatarUrl;
+  final DateTime? professionalLastSeenAt;
 
   const ChatPage({
     Key? key,
@@ -15,6 +16,7 @@ class ChatPage extends StatefulWidget {
     required this.professionalId,
     required this.professionalName,
     required this.professionalAvatarUrl,
+    this.professionalLastSeenAt,
   }) : super(key: key);
 
   @override
@@ -51,15 +53,6 @@ class _ChatPageState extends State<ChatPage> {
       );
       _controller.clear();
       _loadMessages();
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -67,23 +60,120 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Widget avatarWidget() {
-      if (widget.professionalAvatarUrl.startsWith('http')) {
-        return CircleAvatar(
-          backgroundImage: NetworkImage(widget.professionalAvatarUrl),
-          onBackgroundImageError: (_, __) {},
-        );
-      } else {
-        return CircleAvatar(
-          child: Text(
-            widget.professionalName.isNotEmpty
-                ? widget.professionalName[0]
-                : '?',
+  String _fullAvatarUrl(String relative) {
+    // Si ya es absolute, la devolvemos tal cual
+    if (relative.startsWith('http')) return relative;
+    // Ajusta aquí tu host/API base si cambia
+    return 'http://10.100.0.12/reforma360_api/$relative';
+  }
+
+  String _buildLastSeenLabel() {
+    if (widget.professionalLastSeenAt == null) return 'En línea';
+    final diff = DateTime.now().difference(widget.professionalLastSeenAt!);
+    if (diff.inMinutes < 5) return 'En línea';
+    return 'En línea hace ${diff.inMinutes}m';
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  List<Widget> _buildMessageWidgets(List<Message> messages, ThemeData theme) {
+    final List<Widget> items = [];
+
+    for (var i = 0; i < messages.length; i++) {
+      final msg = messages[i];
+      final prev = i > 0 ? messages[i - 1] : null;
+
+      // Insertamos etiqueta de fecha si cambia de día
+      if (prev == null || !_isSameDay(prev.sentAt, msg.sentAt)) {
+        items.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Center(
+              child: Text(
+                DateFormat('dd MMM yyyy').format(msg.sentAt),
+                style: theme.textTheme.bodySmall!.copyWith(
+                  color: theme.colorScheme.onBackground.withOpacity(0.6),
+                ),
+              ),
+            ),
           ),
         );
       }
+
+      final isMe = msg.fromUserId == widget.currentUserId;
+      final bubbleColor =
+          isMe ? theme.colorScheme.primary : theme.colorScheme.surfaceVariant;
+      final textColor =
+          isMe
+              ? theme.colorScheme.onPrimary
+              : theme.colorScheme.onSurfaceVariant;
+
+      items.add(
+        Align(
+          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            margin: EdgeInsets.only(
+              top: 6,
+              bottom: 6,
+              left: isMe ? 50 : 0,
+              right: isMe ? 0 : 50,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: bubbleColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              msg.body,
+              style: theme.textTheme.bodyMedium!.copyWith(
+                color: textColor,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    Widget avatarWidget() {
+      final url = widget.professionalAvatarUrl;
+      // Si tenemos algo (sea absolute o relative), lo mostramos como imagen
+      if (url.isNotEmpty) {
+        final imageUrl = _fullAvatarUrl(url);
+        return CircleAvatar(
+          radius: 18,
+          backgroundImage: NetworkImage(imageUrl),
+          onBackgroundImageError: (_, __) {
+            // En caso de fallo, simplemente se quedará el color de fondo + child
+          },
+          child: Text(
+            // Sobre el child: se pintará solo si la imagen falla
+            widget.professionalName.isNotEmpty
+                ? widget.professionalName[0]
+                : '?',
+            style: const TextStyle(color: Colors.white),
+          ),
+        );
+      }
+
+      // Si no hay URL, dibujo la letra
+      return CircleAvatar(
+        radius: 18,
+        child: Text(
+          widget.professionalName.isNotEmpty ? widget.professionalName[0] : '?',
+        ),
+      );
     }
 
     return Scaffold(
@@ -99,14 +189,16 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   Text(
                     widget.professionalName,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: theme.textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    'En línea',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    _buildLastSeenLabel(),
+                    style: theme.textTheme.bodySmall!.copyWith(
+                      color: theme.colorScheme.onBackground.withOpacity(0.7),
+                    ),
                   ),
                 ],
               ),
@@ -127,109 +219,78 @@ class _ChatPageState extends State<ChatPage> {
                 if (snap.hasError) {
                   return Center(child: Text('Error: ${snap.error}'));
                 }
+
                 final messages = snap.data ?? [];
-                return ListView.builder(
+                final widgets = _buildMessageWidgets(messages, theme);
+
+                // Scroll al final
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (_scrollController.hasClients) {
+                    _scrollController.jumpTo(
+                      _scrollController.position.maxScrollExtent,
+                    );
+                  }
+                });
+
+                return ListView(
                   controller: _scrollController,
-                  reverse: true,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
                   ),
-                  itemCount: messages.length,
-                  itemBuilder: (ctx, i) {
-                    final msg = messages[i];
-                    final isMe = msg.fromUserId == widget.currentUserId;
-                    final time = DateFormat('hh:mm a').format(msg.sentAt);
-                    return Align(
-                      alignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Column(
-                        crossAxisAlignment:
-                            isMe
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.7,
-                            ),
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isMe ? Colors.black : Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(12),
-                                topRight: Radius.circular(isMe ? 12 : 0),
-                                bottomLeft: Radius.circular(isMe ? 12 : 0),
-                                bottomRight: const Radius.circular(12),
-                              ),
-                              boxShadow:
-                                  isMe
-                                      ? []
-                                      : [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 2,
-                                        ),
-                                      ],
-                            ),
-                            child: Text(
-                              msg.body,
-                              style: TextStyle(
-                                color: isMe ? Colors.white : Colors.black87,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Text(
-                              time,
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  children: widgets,
                 );
               },
             ),
           ),
+
+          // Input
           SafeArea(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                color: theme.colorScheme.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.shadowColor.withOpacity(0.1),
+                    blurRadius: 2,
+                  ),
+                ],
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(24),
+                        color: theme.colorScheme.onSurface.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      child: TextField(
-                        controller: _controller,
-                        decoration: const InputDecoration(
-                          hintText: 'Escribe un mensaje…',
-                          border: InputBorder.none,
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _controller,
+                              style: theme.textTheme.bodyMedium,
+                              decoration: InputDecoration(
+                                hintText: 'Escribe algo...',
+                                hintStyle: theme.textTheme.bodySmall!.copyWith(
+                                  color: theme.hintColor,
+                                ),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.send,
+                              color: theme.colorScheme.primary,
+                            ),
+                            onPressed: _sendText,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: _sendText,
                   ),
                 ],
               ),
