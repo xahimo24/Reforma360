@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  /// Tema claro
   static ThemeData light = ThemeData(
     brightness: Brightness.light,
     useMaterial3: true,
@@ -34,11 +35,11 @@ class AppTheme {
       hintStyle: TextStyle(color: Colors.grey.shade600),
       enabledBorder: UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.grey.shade400),
-      ), // Parentesis de cierre añadido aquí
+      ),
       focusedBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.black, width: 2),
-      ), // Parentesis de cierre añadido aquí
-    ), // Coma añadida aquí
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.black,
@@ -87,6 +88,7 @@ class AppTheme {
     ),
   );
 
+  /// Tema oscuro
   static ThemeData dark = ThemeData(
     brightness: Brightness.dark,
     useMaterial3: true,
@@ -120,11 +122,11 @@ class AppTheme {
       hintStyle: TextStyle(color: Colors.grey.shade400),
       enabledBorder: UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.grey.shade600),
-      ), // Parentesis de cierre añadido aquí
+      ),
       focusedBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: Colors.white, width: 2),
-      ), // Parentesis de cierre añadido aquí
-    ), // Coma añadida aquí
+      ),
+    ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
@@ -172,4 +174,9 @@ class AppTheme {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );
+
+  /// Obtiene el ThemeData activo (light u oscuro) a partir del BuildContext
+  static ThemeData of(BuildContext context) {
+    return Theme.of(context);
+  }
 }
