@@ -203,27 +203,33 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
                     // --- BIO EN CARD ---
                     Card(
-                      color: Colors.blueGrey[50],
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: 0,
+                      // El color del Card viene de theme.cardTheme.color automáticamente,
+                      // así que no hace falta especificarlo aquí.
+                      elevation: Theme.of(context).cardTheme.elevation ?? 0,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                              children: const [
-                                Icon(Icons.info_outline, color: Colors.black, size: 22),
-                                SizedBox(width: 8),
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 22,
+                                  // Usamos el primary del esquema de color para el icono
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Bio',
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.black,
+                                    // color de texto del título viene de onSurface
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ],
@@ -231,7 +237,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             const SizedBox(height: 12),
                             Text(
                               user.bio ?? 'Usuari de Reforma 360',
-                              style: const TextStyle(fontSize: 16),
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                // color de cuerpo de texto
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
@@ -251,7 +260,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               }
                               final prof = profsList.first;
                                 return Card(
-                                color: Colors.blueGrey[50],
+                                ///color: Colors.blueGrey[50],
                                 margin: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -264,14 +273,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                   children: [
                                     Row(
                                     children: const [
-                                      Icon(Icons.work, color: Colors.black, size: 22),
+                                      Icon(Icons.work, size: 22),
                                       SizedBox(width: 8),
                                       Text(
                                       'Datos profesionales',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
-                                        color: Colors.black,
+                                        ///color: Colors.black,
                                       ),
                                       ),
                                     ],
@@ -279,7 +288,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     const SizedBox(height: 12),
                                     Row(
                                     children: [
-                                      const Icon(Icons.category, size: 18, color: Colors.grey),
+                                      const Icon(Icons.category, size: 18),
                                       const SizedBox(width: 6),
                                       Text('Categoría: ', style: const TextStyle(fontWeight: FontWeight.w600)),
                                       Text(prof.categoryName),
@@ -288,7 +297,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     const SizedBox(height: 6),
                                     Row(
                                     children: [
-                                      const Icon(Icons.timeline, size: 18, color: Colors.grey),
+                                      const Icon(Icons.timeline, size: 18),
                                       const SizedBox(width: 6),
                                       Text('Experiencia: ', style: const TextStyle(fontWeight: FontWeight.w600)),
                                       Text('${prof.experience} años'),
@@ -297,7 +306,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     const SizedBox(height: 6),
                                     Row(
                                     children: [
-                                      const Icon(Icons.location_city, size: 18, color: Colors.grey),
+                                      const Icon(Icons.location_city, size: 18),
                                       const SizedBox(width: 6),
                                       Text('Ciudad: ', style: const TextStyle(fontWeight: FontWeight.w600)),
                                       Text(prof.city),
@@ -307,7 +316,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.description, size: 18, color: Colors.grey),
+                                      const Icon(Icons.description, size: 18),
                                       const SizedBox(width: 6),
                                       Text('Descripción: ', style: const TextStyle(fontWeight: FontWeight.w600)),
                                       Expanded(child: Text(prof.description)),

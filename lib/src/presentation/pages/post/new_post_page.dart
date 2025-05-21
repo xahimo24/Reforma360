@@ -113,7 +113,7 @@ class _NewPostPageState extends ConsumerState<NewPostPage> {
                       height: 24,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.white,
+                        ///color: Colors.white,
                       ),
                     )
                     : const Icon(Icons.check),
@@ -129,7 +129,7 @@ class _NewPostPageState extends ConsumerState<NewPostPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                ///color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: const [
                   BoxShadow(color: Colors.black12, blurRadius: 6),

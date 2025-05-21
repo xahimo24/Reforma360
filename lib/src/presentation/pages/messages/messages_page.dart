@@ -74,7 +74,7 @@ class _MessagesPageState extends ConsumerState<MessagesPage> {
                 hintText: 'Busca conversaciones…',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: Colors.grey[200],
+                ///fillColor: Colors.grey[200],
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 0,
