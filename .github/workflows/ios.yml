@@ -1,0 +1,42 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby (para CocoaPods)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.x'
+      - name: Install dependencies
+        run: |
+          npm install            # o yarn
+          cd ios && pod install
+      - name: Build and archive
+        run: |
+          xcodebuild \
+            -workspace ios/YourApp.xcworkspace \
+            -scheme YourApp \
+            -configuration Release \
+            -archivePath $PWD/build/YourApp.xcarchive \
+            clean archive
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath $PWD/build/YourApp.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath $PWD/build/ipa
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-ipa
+          path: build/ipa/*.ipa
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      FASTLANE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
