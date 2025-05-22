@@ -82,3 +82,5 @@ lib/
 
 
 > ℹ️ Documentació actualitzada el **{data}**
+> 
+> [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/xahimo24/Reforma360)
