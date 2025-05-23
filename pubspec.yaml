@@ -8,30 +8,30 @@ environment:
 
 dependencies:
   flutter:
-    sdk: flutter
-  cloud_firestore: ^5.6.6
-  go_router: ^13.0.1
-  flutter_riverpod: 2.6.1
-  http: ^1.3.0
-  http_parser: ^4.0.2
-  shared_preferences: ^2.0.17
-  image_picker: ^0.8.7+4 
-  file_selector: ^1.0.0
-  timeago: ^3.2.0
-  geolocator: ^9.0.2
-  geocoding: ^2.0.5
+    sdk: flutter # Framework principal para apps multiplataforma
+  cloud_firestore: ^5.6.6 # Acceso a la base de datos NoSQL de Firebase (Firestore)
+  go_router: ^13.0.1 # Sistema de navegación moderno y recomendado para Flutter
+  flutter_riverpod: 2.6.1 # Gestión de estado segura, flexible y escalable
+  http: ^1.3.0 # Cliente HTTP para conectarse a APIs REST
+  http_parser: ^4.0.2 # Utilidades para analizar tipos MIME, headers, etc.
+  shared_preferences: ^2.0.17 # Almacenamiento local de datos simples (tokens, flags...)
+  image_picker: ^0.8.7+4 # Selección de imágenes desde cámara o galería
+  file_selector: ^1.0.0 # Selección de archivos del sistema en plataformas múltiples
+  timeago: ^3.2.0 # Mostrar fechas en formato legible ("hace 2 horas", etc.)
+  geolocator: ^9.0.2 # Acceso a ubicación GPS del dispositivo
+  geocoding: ^2.0.5 # Conversión entre coordenadas y direcciones (geocodificación inversa)
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
-  flutter_gherkin: ^2.0.0
-  flutter_launcher_icons: ^0.10.0
-  test: any
-  build_runner: any
-  mockito: ^5.0.0 # (opcional para mocks)
+    sdk: flutter # Herramientas de testing de Flutter (unitarios y widgets)
+  flutter_lints: ^5.0.0 # Reglas de buenas prácticas y estilo para Flutter
+  flutter_gherkin: ^2.0.0 # Tests automatizados tipo BDD con sintaxis Given/When/Then
+  flutter_launcher_icons: ^0.10.0 # Generación automática de iconos de la app
+  test: any # Librería de testing estándar de Dart
+  build_runner: any # Herramienta para generación automática de código (ej: json_serializable, mocks...)
+  mockito: ^5.0.0 # Framework de mocks para pruebas unitarias
   integration_test:
-    sdk: flutter
+    sdk: flutter # Tests de integración de Flutter (flujo completo de la app)
 
 flutter_icons:
   android: true
